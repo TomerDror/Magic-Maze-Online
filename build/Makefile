@@ -1,16 +1,24 @@
-# PROGRAMS := tests/Client tests/Server tests/SqlImporter tests/PythonRunner tests/ThreadTest
-PROGRAMS :=  backend/main extras/SqlFieldPieceMaker# extras/SqlFieldPieceReader
+# List of programs to build
+PROGRAMS := backend/main extras/SqlFieldPieceMaker
+# Directory paths
 SRCDIR := ../src
 EXEDIR := ../exes
+# Compiler and flags
 CC := g++
-CFLAGS := -Wall -Wextra  
+CFLAGS := -Wall -Wextra
 LDFLAGS := -lws2_32 -lsqlite3
-
-all: $(PROGRAMS)
 
 # Rule to compile each program
 $(PROGRAMS): %: $(SRCDIR)/%.cpp
 	$(CC) $(CFLAGS) -o $(EXEDIR)/$@ $< $(LDFLAGS)
 
+# Rule to compile backend/main with additional source files
+backend/main: $(SRCDIR)/backend/main.cpp $(SRCDIR)/backend/PreFieldPiece.cpp $(SRCDIR)/backend/FieldPiece.cpp
+	$(CC) $(CFLAGS) -o $(EXEDIR)/$@ $^ $(LDFLAGS)
+
+# Rule to compile all programs
+all: $(PROGRAMS)
+
+# Rule to clean the executables
 clean:
 	rm -f $(EXEDIR)/*
