@@ -1,10 +1,10 @@
 # PROGRAMS := tests/Client tests/Server tests/SqlImporter tests/PythonRunner tests/ThreadTest
-PROGRAMS :=   backend/Character#backend/Player backend/Field backend/Character backend/PreFieldPiece backend/Tile backend/FieldPiece
+PROGRAMS :=  backend/main extras/SqlFieldPieceMaker# extras/SqlFieldPieceReader
 SRCDIR := ../src
 EXEDIR := ../exes
 CC := g++
 CFLAGS := -Wall -Wextra  
-LDFLAGS := -lws2_32
+LDFLAGS := -lws2_32 -lsqlite3
 
 all: $(PROGRAMS)
 
