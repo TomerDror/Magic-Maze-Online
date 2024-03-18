@@ -1,17 +1,4 @@
-#ifndef PREFIELDPIECE_H
-#define PREFIELDPIECE_H
-class PreFieldPiece {
-private:
-    int** tiles;
-    int size;
-
-public:
-    PreFieldPiece(int** tiles, int size);
-    void rotateLeft();
-    void rotateRight();
-    int** getData();
-    int getSize();
-};
+#include "PreFieldPiece.h"
 
 PreFieldPiece::PreFieldPiece(int** tiles, int size) {
     this->size = size;
@@ -57,4 +44,3 @@ int** PreFieldPiece::getData(){
 int PreFieldPiece::getSize(){
     return this->size;
 }
-#endif

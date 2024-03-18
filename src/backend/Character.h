@@ -1,0 +1,20 @@
+    #ifndef CHARACTER_H
+    #define CHARACTER_H
+    #include "PreFieldPiece.h"
+    #include "FieldPiece.h"
+    #include "Tile.h"
+    #include "Player.h"
+    #include "MovementAbility.h"
+    #include <string>
+
+    class Character{
+        public:
+            std::string name;
+            FieldPiece *fieldPieceOn;
+            Tile *tileOn;
+            Character(std::string, FieldPiece *startingPieceField,Tile *startingTile);
+            std::vector<Tile*> getPlausibleTargetTiles(MovementAbility *playerMovementAbility);
+
+    };
+
+    #endif 

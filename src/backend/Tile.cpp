@@ -1,47 +1,8 @@
-// #ifndef TILE_H
-// #define TILE_H
-// #include "Player.cpp"
-// #include <vector>
 
-// class Tile {
-// public:
-    
-//     bool isStandable;
-//     Tile* escalatorTo;
-//     Tile* tileAbove;
-//     Tile* tileBelow;
-//     Tile* tileToRight;
-//     Tile* tileToLeft;
-//     int tileType;
-
-//     // Constructor
-//     Tile(int tileType);
-
-//     // Method to get plausible target tiles
-//     Tile* getPlausibleTargetTiles(MovementAbility* movementAbility);
-// };
-
-// #endif
 
 #include "Tile.h"
 
 
-class Tile {
-public:
-    bool isStandable;
-    Tile* escalatorTo;
-    Tile* tileAbove;
-    Tile* tileBelow;
-    Tile* tileToRight;
-    Tile* tileToLeft;
-    int tileType;
-
-    // Constructor
-    Tile(int tileType);
-
-    // Method to get plausible target tiles
-    std::vector<Tile*> getPlausibleTargetTiles(MovementAbility* movementAbility);
-};
 
 Tile::Tile( int tileType) {
     
@@ -53,39 +14,39 @@ std::vector<Tile*> Tile::getPlausibleTargetTiles(MovementAbility* movementAbilit
     Tile *temp;
     std::vector<Tile*> plausibleTiles;
 
-    if(movementAbility->canMoveDown&&this->tileBellow!=NULL){
-        plausibleTiles.push_back(this->tileBelow);
-        temp = this->tileBelow;
-        while(temp->tileBelow!=NULL){
-            temp.push_back(temp->tileBelow);
-            temp = temp->tileBelow;
+    if(movementAbility->canMoveDown&&this->tileBellow!=nullptr){
+        plausibleTiles.push_back(this->tileBellow);
+        temp = this->tileBellow;
+        while(temp->tileBellow!=NULL){
+            plausibleTiles.push_back(temp->tileBellow);
+            temp = temp->tileBellow;
         }
     }
-    if(movementAbility->canMoveUp&&this->tileAbove!=NULL){
+    if(movementAbility->canMoveUp&&this->tileAbove!=nullptr){
         plausibleTiles.push_back(this->tileAbove);
         temp = this->tileAbove;
         while(temp->tileAbove!=NULL){
-            temp.push_back(temp->tileAbove);
+            plausibleTiles.push_back(temp->tileAbove);
             temp = temp->tileAbove;
         }
     }
-    if(movementAbility->canMoveRight&&this->tileToRight!=NULL){
+    if(movementAbility->canMoveRight&&this->tileToRight!=nullptr){
         plausibleTiles.push_back(this->tileToRight);
         temp = this->tileToRight;
         while(temp->tileToRight!=NULL){
-            temp.push_back(temp->tileToRight);
+            plausibleTiles.push_back(temp->tileToRight);
             temp = temp->tileToRight;
         }
     }
-    if(movementAbility->canMoveLeft&&this->tileToLeft!=NULL){
+    if(movementAbility->canMoveLeft&&this->tileToLeft!=nullptr){
         plausibleTiles.push_back(this->tileToLeft);
         temp = this->tileToLeft;
         while(temp->tileToLeft!=NULL){
-            temp.push_back(temp->tileToLeft);
+            plausibleTiles.push_back(temp->tileToLeft);
             temp = temp->tileToLeft;
         }
     }
-    return possibleTiles;
+    return plausibleTiles;
     
 }
 

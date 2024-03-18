@@ -4,15 +4,13 @@
 #include "Player.h" // Include the header file, not the .cpp file
 #include <vector>
 
-// Forward declaration of MovementAbility class
-class MovementAbility;
 
 class Tile {
 public:
     bool isStandable;
     Tile* escalatorTo;
     Tile* tileAbove;
-    Tile* tileBelow;
+    Tile* tileBellow;
     Tile* tileToRight;
     Tile* tileToLeft;
     int tileType;
