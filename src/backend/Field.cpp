@@ -13,7 +13,7 @@ Field* Field::instance = nullptr;
             tiles[i] = new int[size];
             for (int j = 0; j < size; ++j)
             {
-                tiles[i][j] = 4*i+j+1;
+                tiles[i][j] = 100 +4*i+j+1;
             }
         }
         PreFieldPiece preFieldPiece(tiles, size);
@@ -27,16 +27,12 @@ Field* Field::instance = nullptr;
 Field::Field(PreFieldPiece *fieldPiece)
 {
     centerPiece = new FieldPiece(fieldPiece);
-    std::cout<<this->centerPiece->tile->tileType;
-    std::cout<<"\n";
+ 
 
-    std::cout<<this->centerPiece->tile;
-    std::cout<<this->centerPiece->tile;
-
-    this->greenCharacter = new Character("green character",this->centerPiece,this->centerPiece->tile->tileToRight->tileBellow);
-    this->purpleCharacter = new Character("green character",this->centerPiece,this->centerPiece->tile->tileToRight->tileToRight);
-    this->yellowCharacter = new Character("green character",this->centerPiece,this->centerPiece->tile->tileToRight->tileBellow->tileBellow);
-    this->orangeCharacter = new Character("green character",this->centerPiece,this->centerPiece->tile->tileToRight->tileToRight->tileBellow->tileBellow);
+    this->greenCharacter = new Character("green character",this->centerPiece,this->centerPiece->tile->tileToRight);
+    this->purpleCharacter = new Character("purple character",this->centerPiece,this->centerPiece->tile->tileToRight->tileToRight->tileBellow);
+    this->yellowCharacter = new Character("yellow character",this->centerPiece,this->centerPiece->tile->tileToRight->tileBellow->tileBellow);
+    this->orangeCharacter = new Character("orange character",this->centerPiece,this->centerPiece->tile->tileToRight->tileToRight->tileBellow->tileBellow);
 }
 
 Field::Field(FieldPiece *fieldPiece)
@@ -51,11 +47,16 @@ Field::Field(FieldPiece *fieldPiece)
 bool Field::isTileVacated(Tile *tile)
 {
     // Check if any of the characters occupy the tile
-    if( this->greenCharacter == nullptr)
-        std::cout<<"wow\n";
+    // if( this->greenCharacter == nullptr)
+    //     std::cout<<"wow\n";
+    // std::cout<< (tile != greenCharacter->tileOn)<< 
+    //         (tile != purpleCharacter->tileOn)<<
+    //         (tile != yellowCharacter->tileOn)<<
+    //         (tile != orangeCharacter->tileOn);
+    // std::cout <<"\n";
     return (tile != greenCharacter->tileOn &&
             tile != purpleCharacter->tileOn &&
-            tile == yellowCharacter->tileOn &&
+            tile != yellowCharacter->tileOn &&
             tile != orangeCharacter->tileOn);
 }
 

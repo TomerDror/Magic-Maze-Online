@@ -1,7 +1,10 @@
 #ifndef FIELDPIECE
 #define FIELDPIECE
-#include "Tile.h"
+
+class Tile;
+class PreFieldPiece;
 #include "PreFieldPiece.h"
+#include "Tile.h"
 #include <unordered_map> 
 #include <stdexcept>
 #include <iostream>

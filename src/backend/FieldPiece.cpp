@@ -13,14 +13,14 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
     {
         for (int x = 0; x < size; x++)
         {
-            std::cout<<x<<", "<<y;
+            // std::cout<<x<<", "<<y;
             if (field[y][x] != 0)
             {
                 Tile *currTile;
 
                 if (umap.find(10 * y + x) == umap.end())
                 {
-                    std::cout<<" creating tile ";
+                    // std::cout<<" creating tile ";
 
                     currTile = new Tile(field[y][x]);
                     umap[10 * y + x] = currTile;
@@ -40,14 +40,14 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
 
                     if (umap.find(10 * y + x + 1) == umap.end())
                     {
-                        std::cout<<",cr right ";
+                        // std::cout<<" ,cr right";
 
                         rightTile = new Tile(field[y][x + 1]);
                         umap[10 * y + x + 1] = rightTile;
                     }
                     else
                     {
-                        std::cout<<",con right ";
+                        // std::cout<<" ,con right";
                         rightTile = umap[10 * y + x + 1];
                     }
 
@@ -61,13 +61,13 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
 
                     if (umap.find(10 * y + x - 1) == umap.end())
                     {
-                        std::cout<<",cr left ";
+                        // std::cout<<" ,cr left";
                         leftTile = new Tile(field[y][x - 1]);
                         umap[10 * y + x - 1] = leftTile;
                     }
                     else
                     {
-                        std::cout<<",con left ";
+                        // std::cout<<" ,con left";
                         leftTile = umap[10 * y + x - 1];
                     }
 
@@ -80,14 +80,14 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
 
                     if (umap.find(10 * (y + 1) + x ) == umap.end())
                     {
-                        std::cout<<",cr down ";
+                        // std::cout<<" ,cr down";
 
                         downTile = new Tile(field[y+1][x]);
                         umap[10 * (y+1) + x ] = downTile;
                     }
                     else
                     {
-                        std::cout<<",con down ";
+                        // std::cout<<" ,con down";
                         downTile = umap[10 * (y + 1) + x ];
                     }
 
@@ -99,14 +99,14 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
 
                     if (umap.find(10 * (y - 1) + x ) == umap.end())
                     {
-                        std::cout<<" ,cr up";
+                        // std::cout<<" ,cr up";
 
                         upTile = new Tile(field[y-1][x]);
                         umap[10 * (y-1) + x ] = upTile;
                     }
                     else
                     {
-                        std::cout<<" ,con up";
+                        // std::cout<<" ,con up";
                         upTile = umap[10 * (y - 1) + x];
                     }
 
@@ -114,7 +114,7 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
                 }
                 
             }
-            std::cout<<"\n";
+            // std::cout<<"\n";
         }
     }
 }

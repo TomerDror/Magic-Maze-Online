@@ -27,3 +27,27 @@ std::vector<Tile*> Character::getPlausibleTargetTiles(MovementAbility *playerMov
     }
     return plausibleTargetTiles;
 }
+
+
+// void Character::move(Tile *tile,MovementAbility *playerMovementAbility){
+//     std::vector<Tile*> plausibleTiles = getPlausibleTargetTiles(playerMovementAbility);
+//     if(std::find(plausibleTiles.begin(), plausibleTiles.end(), tile)!= plausibleTiles.end()){
+//         this->tileOn = tile;
+//     }
+// }
+
+void Character::move(Tile *tile, MovementAbility *playerMovementAbility) {
+    // Check if the tile is a plausible target tile
+    std::vector<Tile*> plausibleTargetTiles = getPlausibleTargetTiles(playerMovementAbility);
+    bool isValidMove = false;
+    for (Tile* targetTile : plausibleTargetTiles) {
+        if (targetTile == tile) {
+            isValidMove = true;
+            break;
+        }
+    }
+    
+    if (isValidMove) {
+        this->tileOn=tile;
+    }
+}

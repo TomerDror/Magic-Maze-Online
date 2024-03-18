@@ -6,6 +6,7 @@
     #include "Player.h"
     #include "MovementAbility.h"
     #include <string>
+    #include <vector>
 
     class Character{
         public:
@@ -14,7 +15,7 @@
             Tile *tileOn;
             Character(std::string, FieldPiece *startingPieceField,Tile *startingTile);
             std::vector<Tile*> getPlausibleTargetTiles(MovementAbility *playerMovementAbility);
-
+            void move(Tile* target,MovementAbility *playerMovementAbility);
     };
 
     #endif 

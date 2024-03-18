@@ -1,10 +1,10 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include "Player.h" // Include the header file, not the .cpp file
+#include "Player.h" 
 #include <vector>
-
-
+#include <iostream>
+#include "Field.h" 
 class Tile {
 public:
     bool isStandable;
@@ -15,11 +15,10 @@ public:
     Tile* tileToLeft;
     int tileType;
 
-    // Constructor
     Tile(int tileType);
 
-    // Method to get plausible target tiles
     std::vector<Tile*> getPlausibleTargetTiles(MovementAbility* movementAbility);
+
 };
 
 #endif

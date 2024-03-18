@@ -1,9 +1,15 @@
 #ifndef FIELD_H
 #define FIELD_H
+class Tile;
+class Character;
+class FieldPiece;
+class PreFieldPiece;
+
+
 #include "FieldPiece.h"
 #include "PreFieldPiece.h"
 #include "Character.h"
-
+#include "Tile.h"
 
 class Field{
     public:
