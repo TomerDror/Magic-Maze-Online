@@ -9,6 +9,7 @@ typedef struct
     bool canUseEscalator;
     bool canUsePortals;
     bool canOpenFieldPiece;
+    
 } MovementAbility;
 
 #endif
