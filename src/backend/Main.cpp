@@ -1,118 +1,110 @@
-#include "Field.h"
-#include "Character.h"
-#include "PreFieldPiece.h" 
-#include "FieldPiece.h"
-#include "Player.h"
-#include "Tile.h"
 #include <iostream>
-#include <algorithm>
+#include <string>
+#include <thread>
+#include <cstring>
+#include <winsock2.h>
+#include <WS2tcpip.h>
 
-void printPossibleMoves(MovementAbility *movementAbility);
-void printPossibleMoves(Character *character,MovementAbility *movementAbility);
+const int PORT = 8089;
+const std::string IP = "127.0.0.1";
+const std::string START_COMMAND = "start";
 
+void receiveCommands(int clientSocket) {
+    while (true) {
+        char buffer[1024];
+        int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
+        if (bytesReceived <= 0) {
+            std::cerr << "Error: Connection closed by server." << std::endl;
+            closesocket(clientSocket);
+            return;
+        }
+        buffer[bytesReceived] = '\0';
+        std::string message(buffer);
+        std::cout << "Received from server: " << message << std::endl;
 
-int main() {
-    // int size = 4;
-    //     int** tiles = new int*[size];
-    //     for (int i = 0; i < size; ++i)
-    //     {
-    //         tiles[i] = new int[size];
-    //         for (int j = 0; j < size; ++j)
-    //         {
-    //             tiles[i][j] = 4*i+j;
-    //         }
-    //     }
-    //     PreFieldPiece preFieldPiece(tiles, size);
-    //     FieldPiece FieldPiece
-    
+        if (message == START_COMMAND) {
+            std::cout << "Client started!" << std::endl;
+        }
+    }
+}
 
-
-    // Field& fieldInstance = Field::getInstance();
-    Player firstPlayer(1,1,0,1,0,0,0);
-
-    while(true){
-        printPossibleMoves(firstPlayer.movementAbility);
-        std::string cmd;
-        std::string color;
-        int number = 0;
-
+void sendCommands(int clientSocket) {
+    std::string cmd;
+    while (true) {
         std::cout << "Enter a command: ";
-        std::cin >> cmd;
-        cmd.erase(std::remove(cmd.begin(), cmd.end(), ' '), cmd.end());
-
-        if(cmd =="stop"){
+        std::getline(std::cin, cmd);
+        if (cmd == "stop") {
+            send(clientSocket, "stop", 4, 0); // Inform server to stop
             break;
         }
-        if (cmd == "move") {
-            std::cout << "Enter a color: ";
-            std::cin >> color;
-            
-            while (true) {
-                std::cout << "Enter a number: ";
-                if (!(std::cin >> number)) {
-                    std::cout << "Please enter a valid number." << std::endl;
-                    std::cin.clear();
-                    std::cin.ignore(100, '\n');
-                } else {
-                    break;
-                }
-            }
-
-            color.erase(std::remove(color.begin(), color.end(), ' '), color.end());
-            if(color == "green"){
-                std::vector<Tile*> possibleTiles = Field::getInstance().getGreenCharacter()->getPlausibleTargetTiles(firstPlayer.movementAbility);
-                for (std::vector<Tile*>::size_type i = 0; i < possibleTiles.size(); ++i) {
-                    if(possibleTiles[i]->tileType  == number){
-                        Field::getInstance().getGreenCharacter()->move(possibleTiles[i],firstPlayer.movementAbility);
-                    }
-                }
-            }
-            if(color == "purple"){
-                std::vector<Tile*> possibleTiles = Field::getInstance().getPurpleCharacter()->getPlausibleTargetTiles(firstPlayer.movementAbility);
-                for (std::vector<Tile*>::size_type i = 0; i < possibleTiles.size(); ++i) {
-                    if(possibleTiles[i]->tileType  == number){
-                        Field::getInstance().getPurpleCharacter()->move(possibleTiles[i],firstPlayer.movementAbility);
-                    }
-                }
-            }
-            if(color == "orange"){
-                std::vector<Tile*> possibleTiles = Field::getInstance().getOrangeCharacter()->getPlausibleTargetTiles(firstPlayer.movementAbility);
-                for (std::vector<Tile*>::size_type i = 0; i < possibleTiles.size(); ++i) {
-                    if(possibleTiles[i]->tileType  == number){
-                        Field::getInstance().getOrangeCharacter()->move(possibleTiles[i],firstPlayer.movementAbility);
-                    }
-                }
-            }
-            if(color == "yellow"){
-                std::vector<Tile*> possibleTiles = Field::getInstance().getYellowCharacter()->getPlausibleTargetTiles(firstPlayer.movementAbility);
-                for (std::vector<Tile*>::size_type i = 0; i < possibleTiles.size(); ++i) {
-                    if(possibleTiles[i]->tileType  == number){
-                        Field::getInstance().getYellowCharacter()->move(possibleTiles[i],firstPlayer.movementAbility);
-                    }
-                }
-            }
-        }  
-    }//move green 102 
-    
-    return 0;
+        send(clientSocket, cmd.c_str(), cmd.size(), 0);
+    }
 }
+int main() {
+    // Initialize Winsock on Windows
+    #ifdef _WIN32
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cerr << "Failed to initialize Winsock" << std::endl;
+        return EXIT_FAILURE;
+    }
+    #endif
 
+    // Create a socket
+    SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (serverSocket == INVALID_SOCKET) {
+        std::cerr << "Error creating socket" << std::endl;
+        #ifdef _WIN32
+        WSACleanup();
+        #endif
+        return EXIT_FAILURE;
+    }
 
-void printPossibleMoves(MovementAbility *movementAbility){
-    printPossibleMoves(Field::getInstance().getGreenCharacter(),movementAbility);
-    printPossibleMoves(Field::getInstance().getPurpleCharacter(),movementAbility);
-    printPossibleMoves(Field::getInstance().getYellowCharacter(),movementAbility);
-    printPossibleMoves(Field::getInstance().getOrangeCharacter(),movementAbility);
-    // printPossibleMoves(getInstance().getGreenCharacter(),movementAbility);
-}
+    // Bind the socket to an address and port
+    sockaddr_in serverAddress;
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = INADDR_ANY;
+    serverAddress.sin_port = htons(8080);
 
-void printPossibleMoves(Character *character,MovementAbility *movementAbility){
-        std::cout<<"possible "<<(character->name)<<" tiles ";
-        std::vector<Tile*> possibleTiles = character->getPlausibleTargetTiles(movementAbility);
-        for (std::vector<Tile*>::size_type i = 0; i < possibleTiles.size(); ++i) {
+    if (bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
+        std::cerr << "Error binding socket" << std::endl;
+        closesocket(serverSocket);
+        #ifdef _WIN32
+        WSACleanup();
+        #endif
+        return EXIT_FAILURE;
+    }
 
-            std::cout << possibleTiles[i]->tileType  << " " ;
+    // Listen for incoming connections
+    if (listen(serverSocket, 5) == SOCKET_ERROR) {
+        std::cerr << "Error listening for connections" << std::endl;
+        closesocket(serverSocket);
+        #ifdef _WIN32
+        WSACleanup();
+        #endif
+        return EXIT_FAILURE;
+    }
+
+    std::cout << "Server listening on port 8080..." << std::endl;
+
+    // Accept connections and handle them in separate threads
+    while (true) {
+        SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
+        if (clientSocket == INVALID_SOCKET) {
+            std::cerr << "Error accepting connection" << std::endl;
+            continue;
         }
-        std::cout<<"\n";
 
+        // Create a new thread to handle the client
+        std::thread clientThread(handleClient, clientSocket);
+        clientThread.detach(); // Detach the thread to run independently
+    }
+
+    // Close the server socket and cleanup on Windows
+    closesocket(serverSocket);
+    #ifdef _WIN32
+    WSACleanup();
+    #endif
+
+    return 0;
 }
