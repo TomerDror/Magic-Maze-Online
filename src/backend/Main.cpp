@@ -1,110 +1,83 @@
 #include <iostream>
-#include <string>
+#include <WinSock2.h>
 #include <thread>
-#include <cstring>
-#include <winsock2.h>
-#include <WS2tcpip.h>
 
-const int PORT = 8089;
-const std::string IP = "127.0.0.1";
-const std::string START_COMMAND = "start";
+#pragma comment(lib, "Ws2_32.lib")
 
-void receiveCommands(int clientSocket) {
+const char* SERVER_IP = "127.0.0.1"; // Change this to the server's IP address
+const int SERVER_PORT = 27015;
+const int BUFFER_SIZE = 1024;
+
+void HandleServerMessages(SOCKET serverSocket) {
+    char buffer[BUFFER_SIZE];
+    int bytesReceived;
+
     while (true) {
-        char buffer[1024];
-        int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
-        if (bytesReceived <= 0) {
-            std::cerr << "Error: Connection closed by server." << std::endl;
-            closesocket(clientSocket);
-            return;
-        }
-        buffer[bytesReceived] = '\0';
-        std::string message(buffer);
-        std::cout << "Received from server: " << message << std::endl;
-
-        if (message == START_COMMAND) {
-            std::cout << "Client started!" << std::endl;
-        }
-    }
-}
-
-void sendCommands(int clientSocket) {
-    std::string cmd;
-    while (true) {
-        std::cout << "Enter a command: ";
-        std::getline(std::cin, cmd);
-        if (cmd == "stop") {
-            send(clientSocket, "stop", 4, 0); // Inform server to stop
+        bytesReceived = recv(serverSocket, buffer, BUFFER_SIZE, 0);
+        if (bytesReceived == SOCKET_ERROR || bytesReceived == 0) {
+            std::cerr << "Error receiving from server. Connection closed." << std::endl;
             break;
         }
-        send(clientSocket, cmd.c_str(), cmd.size(), 0);
+
+        buffer[bytesReceived] = '\0';
+        std::cout << "Received from server: " << buffer << std::endl;
+        // Here you can pass the received message to your other thread for processing
     }
 }
+
 int main() {
-    // Initialize Winsock on Windows
-    #ifdef _WIN32
     WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        std::cerr << "Failed to initialize Winsock" << std::endl;
-        return EXIT_FAILURE;
+    int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (result != 0) {
+        std::cerr << "WSAStartup failed: " << result << std::endl;
+        return 1;
     }
-    #endif
 
-    // Create a socket
-    SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (serverSocket == INVALID_SOCKET) {
-        std::cerr << "Error creating socket" << std::endl;
-        #ifdef _WIN32
+    SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (clientSocket == INVALID_SOCKET) {
+        std::cerr << "Error creating client socket: " << WSAGetLastError() << std::endl;
         WSACleanup();
-        #endif
-        return EXIT_FAILURE;
+        return 1;
     }
 
-    // Bind the socket to an address and port
-    sockaddr_in serverAddress;
-    serverAddress.sin_family = AF_INET;
-    serverAddress.sin_addr.s_addr = INADDR_ANY;
-    serverAddress.sin_port = htons(8080);
+    sockaddr_in serverAddr;
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
+    serverAddr.sin_port = htons(SERVER_PORT);
 
-    if (bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
-        std::cerr << "Error binding socket" << std::endl;
-        closesocket(serverSocket);
-        #ifdef _WIN32
+    result = connect(clientSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
+    if (result == SOCKET_ERROR) {
+        std::cerr << "Failed to connect to server: " << WSAGetLastError() << std::endl;
+        closesocket(clientSocket);
         WSACleanup();
-        #endif
-        return EXIT_FAILURE;
+        return 1;
     }
 
-    // Listen for incoming connections
-    if (listen(serverSocket, 5) == SOCKET_ERROR) {
-        std::cerr << "Error listening for connections" << std::endl;
-        closesocket(serverSocket);
-        #ifdef _WIN32
-        WSACleanup();
-        #endif
-        return EXIT_FAILURE;
-    }
+    std::cout << "Connected to server." << std::endl;
 
-    std::cout << "Server listening on port 8080..." << std::endl;
+    // Start a thread to handle server messages
+    std::thread serverThread(HandleServerMessages, clientSocket);
 
-    // Accept connections and handle them in separate threads
+    // Main loop to send commands to the server
     while (true) {
-        SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
-        if (clientSocket == INVALID_SOCKET) {
-            std::cerr << "Error accepting connection" << std::endl;
-            continue;
+        std::string message;
+        std::cout << "Enter command: ";
+        std::getline(std::cin, message);
+
+        if (send(clientSocket, message.c_str(), message.length(), 0) == SOCKET_ERROR) {
+            std::cerr << "Error sending message to server: " << WSAGetLastError() << std::endl;
+            break;
         }
 
-        // Create a new thread to handle the client
-        std::thread clientThread(handleClient, clientSocket);
-        clientThread.detach(); // Detach the thread to run independently
+        if (message == "quit") {
+            break;
+        }
     }
 
-    // Close the server socket and cleanup on Windows
-    closesocket(serverSocket);
-    #ifdef _WIN32
-    WSACleanup();
-    #endif
+    // Close the socket and join the server thread
+    closesocket(clientSocket);
+    serverThread.join();
 
+    WSACleanup();
     return 0;
 }

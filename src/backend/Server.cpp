@@ -1,115 +1,110 @@
 #include <iostream>
-#include <string>
+#include <WinSock2.h>
 #include <vector>
 #include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <atomic>
-#include <cstring>
-#include <winsock2.h>
-#include <windows.h>
-#include <algorithm> // for std::remove
 
-const int PORT = 8089;
-const int MAX_CLIENTS = 2;
-const std::string START_COMMAND = "start";
+#pragma comment(lib, "Ws2_32.lib")
 
-std::vector<int> clients;
-std::mutex clientsMutex;
-std::atomic<bool> started(false);
+const int DEFAULT_PORT = 27015;
+const int MAX_CLIENTS = 10;
+const int BUFFER_SIZE = 1024;
 
-void sendStartedMessage(int clientSocket) {
-    send(clientSocket, START_COMMAND.c_str(), START_COMMAND.length(), 0);
+std::vector<SOCKET> clients;
+SOCKET serverSocket;
+
+void BroadcastMessage(const char* message, int size) {
+    for (SOCKET client : clients) {
+        send(client, message, size, 0);
+    }
 }
-void handleClient(int clientSocket) {
-    char buffer[1024];
+
+void ClientHandler(SOCKET clientSocket) {
+    char buffer[BUFFER_SIZE];
+    int bytesReceived;
+
     while (true) {
-        int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
-        if (bytesReceived <= 0) {
-            std::lock_guard<std::mutex> lock(clientsMutex);
-            // Erase the client socket from the vector
-            clients.erase(std::remove(clients.begin(), clients.end(), clientSocket), clients.end());
+        bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
+        if (bytesReceived == SOCKET_ERROR || bytesReceived == 0) {
+            std::cerr << "Error receiving from client. Closing connection." << std::endl;
             closesocket(clientSocket);
             return;
         }
 
         buffer[bytesReceived] = '\0';
-        std::string message(buffer);
+        std::cout << "Received from client: " << buffer << std::endl;
 
-        if (!started) {
-            if (message == START_COMMAND) {
-                std::cout << "Server started. Notifying client." << std::endl;
-                started = true;
-                sendStartedMessage(clientSocket);
-            }
+        // Check for "start" command
+        if (strcmp(buffer, "start") == 0) {
+            std::cout << "Start command received. Broadcasting start to all clients." << std::endl;
+            BroadcastMessage("start", strlen("start"));
         } else {
-            // Handle other messages or commands here
+            // Broadcast received message to all clients
+            BroadcastMessage(buffer, bytesReceived);
         }
     }
 }
 
 int main() {
+    std::cout<<"starting code";
     WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        std::cerr << "Error: WSAStartup failed." << std::endl;
+    int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (result != 0) {
+        std::cerr << "WSAStartup failed: " << result << std::endl;
         return 1;
     }
 
-    int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (serverSocket == -1) {
-        std::cerr << "Error: Unable to create server socket. Error code: " << WSAGetLastError() << std::endl;
+    serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (serverSocket == INVALID_SOCKET) {
+        std::cerr << "Error creating server socket: " << WSAGetLastError() << std::endl;
+        WSACleanup();
         return 1;
     }
 
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port = htons(PORT);
+    serverAddr.sin_port = htons(DEFAULT_PORT);
 
-    if (bind(serverSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == -1) {
-        std::cerr << "Error: Unable to bind to port " << PORT << std::endl;
+    result = bind(serverSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
+    if (result == SOCKET_ERROR) {
+        std::cerr << "Bind failed: " << WSAGetLastError() << std::endl;
         closesocket(serverSocket);
+        WSACleanup();
         return 1;
     }
 
-    if (listen(serverSocket, MAX_CLIENTS) == -1) {
-        std::cerr << "Error: Unable to listen on port " << PORT << std::endl;
+    result = listen(serverSocket, SOMAXCONN);
+    if (result == SOCKET_ERROR) {
+        std::cerr << "Listen failed: " << WSAGetLastError() << std::endl;
         closesocket(serverSocket);
+        WSACleanup();
         return 1;
     }
 
-    std::cout << "Waiting for clients to connect..." << std::endl;
+    std::cout << "Server started. Waiting for clients..." << std::endl;
 
     while (true) {
-        sockaddr_in clientAddr;
-        int clientAddrSize = sizeof(clientAddr); // Change to int from socklen_t
-        int clientSocket = accept(serverSocket, reinterpret_cast<sockaddr*>(&clientAddr), &clientAddrSize);
-        if (clientSocket == -1) {
-            std::cerr << "Error: Unable to accept connection." << std::endl;
-            continue;
+        SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
+        if (clientSocket == INVALID_SOCKET) {
+            std::cerr << "Accept failed: " << WSAGetLastError() << std::endl;
+            closesocket(serverSocket);
+            WSACleanup();
+            return 1;
         }
 
-        {
-            std::lock_guard<std::mutex> lock(clientsMutex);
-            if (clients.size() >= MAX_CLIENTS) {
-                std::cout << "Maximum clients reached. Closing connection." << std::endl;
-                closesocket(clientSocket);
-                continue;
-            }
+        if (clients.size() >= MAX_CLIENTS) {
+            std::cerr << "Maximum clients reached. Closing new connection." << std::endl;
+            closesocket(clientSocket);
+        } else {
             clients.push_back(clientSocket);
-        }
-
-        std::thread clientThread(handleClient, clientSocket);
-        clientThread.detach();
-
-        if (started) {
-            // Notify client that server has already started
-            sendStartedMessage(clientSocket);
+            std::cout << "Client connected. Total clients: " << clients.size() << std::endl;
+            std::thread clientThread(ClientHandler, clientSocket);
+            clientThread.detach(); // Detach thread so it can run independently
         }
     }
 
     closesocket(serverSocket);
-    WSACleanup(); // Add this at the end of your main function
-
+    WSACleanup();
     return 0;
 }
+
