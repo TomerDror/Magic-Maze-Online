@@ -11,6 +11,7 @@ const int BUFFER_SIZE = 1024;
 
 std::vector<SOCKET> clients;
 SOCKET serverSocket;
+bool gameStarted = false;
 
 void BroadcastMessage(const char* message, int size) {
     for (SOCKET client : clients) {
@@ -33,11 +34,11 @@ void ClientHandler(SOCKET clientSocket) {
         buffer[bytesReceived] = '\0';
         std::cout << "Received from client: " << buffer << std::endl;
 
-        // Check for "start" command
-        if (strcmp(buffer, "start") == 0) {
+        if (!gameStarted && strcmp(buffer, "start") == 0) {
             std::cout << "Start command received. Broadcasting start to all clients." << std::endl;
+            gameStarted = true;
             BroadcastMessage("start", strlen("start"));
-        } else {
+        } else if (gameStarted) {
             // Broadcast received message to all clients
             BroadcastMessage(buffer, bytesReceived);
         }
@@ -45,7 +46,6 @@ void ClientHandler(SOCKET clientSocket) {
 }
 
 int main() {
-    std::cout<<"starting code";
     WSADATA wsaData;
     int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (result != 0) {
@@ -107,4 +107,3 @@ int main() {
     WSACleanup();
     return 0;
 }
-
