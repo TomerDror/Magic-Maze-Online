@@ -37,7 +37,6 @@ std::vector<Tile*> Character::getPlausibleTargetTiles(MovementAbility *playerMov
 // }
 
 void Character::move(Tile *tile, MovementAbility *playerMovementAbility) {
-    // Check if the tile is a plausible target tile
     std::vector<Tile*> plausibleTargetTiles = getPlausibleTargetTiles(playerMovementAbility);
     bool isValidMove = false;
     for (Tile* targetTile : plausibleTargetTiles) {
@@ -46,7 +45,7 @@ void Character::move(Tile *tile, MovementAbility *playerMovementAbility) {
             break;
         }
     }
-    
+    // std::cout<<"\n"<< isValidMove<<"\n";
     if (isValidMove) {
         this->tileOn=tile;
     }

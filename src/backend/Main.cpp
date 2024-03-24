@@ -29,6 +29,7 @@ void HandleServerMessages(SOCKET serverSocket)
     char buffer[BUFFER_SIZE];
     int bytesReceived;
 
+    printPossibleMoves(firstPlayer.movementAbility);
     while (true)
     {
         bytesReceived = recv(serverSocket, buffer, BUFFER_SIZE, 0);
@@ -41,10 +42,8 @@ void HandleServerMessages(SOCKET serverSocket)
         buffer[bytesReceived] = '\0';
         std::cout << "Received from server: " << buffer << std::endl;
         std::queue<std::string> cmd = splitString(buffer);
-
-        printPossibleMoves(firstPlayer.movementAbility);
-
         handleCmd(&cmd);
+        printPossibleMoves(firstPlayer.movementAbility);
     }
 }
 
@@ -194,7 +193,7 @@ void handleCmd(std::queue<std::string> *cmd)
         cmd->pop();
         number = std::stoi(cmd->front());
         cmd->pop();
-        std::cout<<color<<" \n";
+        // std::cout<<color<<" \n";
 
             movementAbility = queueToMovementAbility(cmd, movementAbility);
         if (color == "green")
@@ -202,15 +201,15 @@ void handleCmd(std::queue<std::string> *cmd)
             std::vector<Tile *> possibleTiles = Field::getInstance().getGreenCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                std::cout<< possibleTiles[i]->tileType;
-                std::cout<< number;
-                std::cout<< "\n";
-                std::cout<< movementAbility->canMoveUp;
-                std::cout<< movementAbility->canMoveDown;
-                std::cout<< movementAbility->canMoveLeft;
-                std::cout<< movementAbility->canMoveRight;
-                std::cout<< movementAbility->canUseEscalator;
-                std::cout<< "\n";
+                // std::cout<< possibleTiles[i]->tileType;
+                // std::cout<< number;
+                // std::cout<< "\n";
+                // std::cout<< movementAbility->canMoveUp;
+                // std::cout<< movementAbility->canMoveDown;
+                // std::cout<< movementAbility->canMoveLeft;
+                // std::cout<< movementAbility->canMoveRight;
+                // std::cout<< movementAbility->canUseEscalator;
+                // std::cout<< "\n";
                 if (possibleTiles[i]->tileType == number)
                 {
                     Field::getInstance().getGreenCharacter()->move(possibleTiles[i], movementAbility);
