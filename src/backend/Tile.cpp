@@ -57,4 +57,3 @@ std::vector<Tile*> Tile::getPlausibleTargetTiles(MovementAbility* movementAbilit
     return plausibleTiles;
     
 }
-
