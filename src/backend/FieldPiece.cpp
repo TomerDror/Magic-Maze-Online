@@ -2,7 +2,6 @@
 
 #include "FieldPiece.h"
 
-
 FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
 {
     int size = preFieldPiece->getSize();
@@ -24,7 +23,8 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
 
                     currTile = new Tile(field[y][x]);
                     umap[10 * y + x] = currTile;
-                    if(isFirst){
+                    if (isFirst)
+                    {
                         isFirst = false;
                         this->tile = currTile;
                     }
@@ -51,11 +51,10 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
                         rightTile = umap[10 * y + x + 1];
                     }
 
-                    currTile->tileToRight = rightTile; 
+                    currTile->tileToRight = rightTile;
                 }
 
-
-                if (x >=  1 && field[y][x - 1] != 0)
+                if (x >= 1 && field[y][x - 1] != 0)
                 {
                     Tile *leftTile;
 
@@ -71,38 +70,38 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
                         leftTile = umap[10 * y + x - 1];
                     }
 
-                    currTile->tileToLeft = leftTile; 
+                    currTile->tileToLeft = leftTile;
                 }
 
                 if (y < (size - 1) && field[y + 1][x] != 0)
                 {
                     Tile *downTile;
 
-                    if (umap.find(10 * (y + 1) + x ) == umap.end())
+                    if (umap.find(10 * (y + 1) + x) == umap.end())
                     {
                         // std::cout<<" ,cr down";
 
-                        downTile = new Tile(field[y+1][x]);
-                        umap[10 * (y+1) + x ] = downTile;
+                        downTile = new Tile(field[y + 1][x]);
+                        umap[10 * (y + 1) + x] = downTile;
                     }
                     else
                     {
                         // std::cout<<" ,con down";
-                        downTile = umap[10 * (y + 1) + x ];
+                        downTile = umap[10 * (y + 1) + x];
                     }
 
-                    currTile->tileBellow = downTile; 
+                    currTile->tileBellow = downTile;
                 }
-                if (y >=  1 && field[y-1][x] != 0)
+                if (y >= 1 && field[y - 1][x] != 0)
                 {
                     Tile *upTile;
 
-                    if (umap.find(10 * (y - 1) + x ) == umap.end())
+                    if (umap.find(10 * (y - 1) + x) == umap.end())
                     {
                         // std::cout<<" ,cr up";
 
-                        upTile = new Tile(field[y-1][x]);
-                        umap[10 * (y-1) + x ] = upTile;
+                        upTile = new Tile(field[y - 1][x]);
+                        umap[10 * (y - 1) + x] = upTile;
                     }
                     else
                     {
@@ -110,33 +109,81 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
                         upTile = umap[10 * (y - 1) + x];
                     }
 
-                    currTile->tileAbove = upTile; 
+                    currTile->tileAbove = upTile;
                 }
                 
+                std::cout << Utils::getTileFeature(field[y][x]) <<" "<<x<<","<<y<< "\n";
+                if (Utils::getTileFeature(field[y][x]) == "escalator")
+                {
+
+                    int direction = Utils::getDirectionBitwise(field[y][x]);
+                    int escalatorX = x;
+                    int escalatorY = y;
+                    escalatorY += ((direction >> 4) & 1) - ((direction >> 3) & 1);
+                    escalatorX -= ((direction >> 2) & 1) - ((direction >> 1) & 1);
+                    Tile *escalatorTile;
+
+                    if (umap.find(10 * (escalatorY) + escalatorX) == umap.end())
+                    {
+                        std::cout << " ,cr esc";
+
+                        escalatorTile = new Tile(field[escalatorY][escalatorX]);
+                        umap[10 * (escalatorY) + escalatorX] = escalatorTile;
+                    }
+                    else
+                    {
+                        std::cout << " ,con esc";
+                        escalatorTile = umap[10 * (escalatorY) + escalatorX];
+                    }
+                    currTile->escalatorTo = escalatorTile;
+                }
+
+                if (Utils::getTileFeature(field[y][x]) == "portal")
+                {
+                    if (Utils::getTileColor(field[y][x]) == "green")
+                    {
+                        Field::getInstance().greenPortals.push_back(currTile);
+                    }
+                    if (Utils::getTileColor(field[y][x]) == "purple")
+                    {
+                        Field::getInstance().purplePortals.push_back(currTile);
+                    }
+                    if (Utils::getTileColor(field[y][x]) == "orange")
+                    {
+                        Field::getInstance().orangePortals.push_back(currTile);
+                    }
+                    if (Utils::getTileColor(field[y][x]) == "yellow")
+                    {
+                        Field::getInstance().yellowPortals.push_back(currTile);
+                    }
+                }
             }
             // std::cout<<"\n";
         }
     }
 }
 
-FieldPiece *FieldPiece::getLeftPiece(){
-    if(!this->leftPiece)
-        throw std::invalid_argument( "nullFieldPiece" );
+FieldPiece *FieldPiece::getLeftPiece()
+{
+    if (!this->leftPiece)
+        throw std::invalid_argument("nullFieldPiece");
     return this->leftPiece;
-
 }
-FieldPiece *FieldPiece::getRightPiece(){
-    if(!this->rightPiece)
-        throw std::invalid_argument( "nullFieldPiece" );
+FieldPiece *FieldPiece::getRightPiece()
+{
+    if (!this->rightPiece)
+        throw std::invalid_argument("nullFieldPiece");
     return this->rightPiece;
 }
-FieldPiece *FieldPiece::getUpPiece(){
-    if(!this->upPiece)
-        throw std::invalid_argument( "nullFieldPiece" );
+FieldPiece *FieldPiece::getUpPiece()
+{
+    if (!this->upPiece)
+        throw std::invalid_argument("nullFieldPiece");
     return this->upPiece;
 }
-FieldPiece *FieldPiece::getDownPiece(){
-    if(!this->downPiece)
-        throw std::invalid_argument( "nullFieldPiece" );
+FieldPiece *FieldPiece::getDownPiece()
+{
+    if (!this->downPiece)
+        throw std::invalid_argument("nullFieldPiece");
     return this->downPiece;
 }

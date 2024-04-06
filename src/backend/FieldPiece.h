@@ -3,11 +3,12 @@
 
 class Tile;
 class PreFieldPiece;
+#include "Utils.h"
+#include <iostream>
 #include "PreFieldPiece.h"
 #include "Tile.h"
 #include <unordered_map> 
 #include <stdexcept>
-#include <iostream>
 
 class FieldPiece
 {

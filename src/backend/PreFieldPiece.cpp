@@ -52,11 +52,11 @@ int PreFieldPiece::getSize()
 {
     return this->size;
 }
-unsigned int PreFieldPiece::extractBits(unsigned int num, unsigned int start, unsigned int end)
-{
-    unsigned int mask = (1 << (end - start + 1)) - 1;
-    mask <<= start;
-    return (num & mask) >> start;
-}
+// unsigned int PreFieldPiece::extractBits(unsigned int num, unsigned int start, unsigned int end)
+// {
+//     unsigned int mask = (1 << (end - start + 1)) - 1;
+//     mask <<= start;
+//     return (num & mask) >> start;
+// }
 
 

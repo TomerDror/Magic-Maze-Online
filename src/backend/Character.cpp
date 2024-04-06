@@ -46,6 +46,7 @@ void Character::move(Tile *tile, MovementAbility *playerMovementAbility) {
             break;
         }
     }
+    // std::vector<//TODO add option for going into portal
     
     if (isValidMove) {
         this->tileOn=tile;
