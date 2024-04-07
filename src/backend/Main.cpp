@@ -12,7 +12,9 @@ void printPossibleMoves(Character *character, MovementAbility *movementAbility);
 
 int main()
 {
- 
+    std::vector<Tile*> portals =Field::getInstance().greenPortals;
+    std::cout<<portals.size()<<"  as well as "<<portals.front()->tileType <<"\n";
+
     // int size = 4;
     //     int** tiles = new int*[size];
     //     for (int i = 0; i < size; ++i)
@@ -27,7 +29,7 @@ int main()
     //     FieldPiece FieldPiece
 
     // Field& fieldInstance = Field::getInstance();
-    Player firstPlayer(1, 1, 0, 1, 1, 1, 1);
+    Player firstPlayer(1, 1, 1, 1, 1, 1, 1);
 
     while (true)
     {
@@ -134,4 +136,5 @@ void printPossibleMoves(Character *character, MovementAbility *movementAbility)
         std::cout << possibleTiles[i]->tileType << " ";
     }
     std::cout << "\n";
+
 }

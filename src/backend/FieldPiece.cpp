@@ -2,7 +2,11 @@
 
 #include "FieldPiece.h"
 
-FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
+FieldPiece::FieldPiece( PreFieldPiece *preFieldPiece)
+{
+    FieldPiece(&Field::getInstance(),preFieldPiece);
+}
+FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
 {
     int size = preFieldPiece->getSize();
     int **field = preFieldPiece->getData();
@@ -112,17 +116,18 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
                     currTile->tileAbove = upTile;
                 }
                 
-                std::cout << Utils::getTileFeature(field[y][x]) <<" "<<x<<","<<y<< "\n";
+                // std::cout << Utils::getTileFeature(field[y][x]) <<" "<<x<<","<<y<< "\n";
                 if (Utils::getTileFeature(field[y][x]) == "escalator")
                 {
 
                     int direction = Utils::getDirectionBitwise(field[y][x]);
+                    // std::cout<<"diraciton"<<direction;
                     int escalatorX = x;
                     int escalatorY = y;
-                    escalatorY += ((direction >> 4) & 1) - ((direction >> 3) & 1);
-                    escalatorX -= ((direction >> 2) & 1) - ((direction >> 1) & 1);
+                    escalatorY -= ((direction >> 3) & 1) - ((direction >> 2) & 1);
+                    escalatorX -= ((direction >> 1) & 1) - ((direction >> 0) & 1);
                     Tile *escalatorTile;
-
+                    // std::cout<<"esc x,y "<< escalatorX<<","<<escalatorY<<"/n"; 
                     if (umap.find(10 * (escalatorY) + escalatorX) == umap.end())
                     {
                         std::cout << " ,cr esc";
@@ -132,29 +137,30 @@ FieldPiece::FieldPiece(PreFieldPiece *preFieldPiece)
                     }
                     else
                     {
-                        std::cout << " ,con esc";
+                        // std::cout << " ,con esc";
                         escalatorTile = umap[10 * (escalatorY) + escalatorX];
                     }
                     currTile->escalatorTo = escalatorTile;
                 }
-
+                std::cout<<"type "<< currTile->tileType<<" type ";
                 if (Utils::getTileFeature(field[y][x]) == "portal")
                 {
                     if (Utils::getTileColor(field[y][x]) == "green")
                     {
-                        Field::getInstance().greenPortals.push_back(currTile);
+                        std::cout<<"yay";
+                        playingField->greenPortals.push_back(currTile);
                     }
                     if (Utils::getTileColor(field[y][x]) == "purple")
                     {
-                        Field::getInstance().purplePortals.push_back(currTile);
+                        playingField->purplePortals.push_back(currTile);
                     }
                     if (Utils::getTileColor(field[y][x]) == "orange")
                     {
-                        Field::getInstance().orangePortals.push_back(currTile);
+                        playingField->orangePortals.push_back(currTile);
                     }
                     if (Utils::getTileColor(field[y][x]) == "yellow")
                     {
-                        Field::getInstance().yellowPortals.push_back(currTile);
+                        playingField->yellowPortals.push_back(currTile);
                     }
                 }
             }

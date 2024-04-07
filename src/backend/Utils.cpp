@@ -6,10 +6,10 @@
     switch (feature)
     {
     case 0:
-        return "empty";
+        return "inaccessable";
         break;
     case 1:
-        return "nothing";
+        return "empty";
         break;
     case 2:
         return "exit";
@@ -84,9 +84,9 @@
     case 8: // 1000
         return "up";
     case 9: // 1001
-        return "up-left";
-    case 10: // 1010
         return "up-right";
+    case 10: // 1010
+        return "up-left";
 
     default:
         return "invalid direction";
@@ -96,22 +96,22 @@
 
  bool Utils::tileBlockedMoveUp(int tileValue)
 {
-    return extractBits(tileValue, Constants::tileTypeBlockedMoveUp, Constants::tileTypeBlockedMoveUp);
+    return !Utils::extractBits(tileValue, Constants::tileTypeBlockedMoveUp, Constants::tileTypeBlockedMoveUp);
 }
 
  bool Utils::tileBlockedMoveDown(int tileValue)
 {
-    return Utils::extractBits(tileValue, Constants::tileTypeBlockedMoveDown, Constants::tileTypeBlockedMoveDown);
+    return !Utils::extractBits(tileValue, Constants::tileTypeBlockedMoveDown, Constants::tileTypeBlockedMoveDown);
 }
 
  bool Utils::tileBlockedMoveLeft(int tileValue)
 {
-    return Utils::extractBits(tileValue, Constants::tileTypeBlockedMoveLeft, Constants::tileTypeBlockedMoveLeft);
+    return !Utils::extractBits(tileValue, Constants::tileTypeBlockedMoveLeft, Constants::tileTypeBlockedMoveLeft);
 }
 
  bool Utils::tileBlockedMoveRight(int tileValue)
 {
-    return extractBits(tileValue, Constants::tileTypeBlockedMoveRight, Constants::tileTypeBlockedMoveRight);
+    return !Utils::extractBits(tileValue, Constants::tileTypeBlockedMoveRight, Constants::tileTypeBlockedMoveRight);
 }
 
  int Utils::extractBits(int num, int start, int end)

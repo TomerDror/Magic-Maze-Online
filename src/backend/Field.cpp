@@ -47,7 +47,7 @@ Field* Field::instance = nullptr;
     tiles[2][3] = 6240;
     tiles[3][0] = 88;
     tiles[3][1] = 911;
-    tiles[3][2] = 10341;
+    tiles[3][2] = 9317;
     tiles[3][3] = 0;
 
 
@@ -61,13 +61,13 @@ Field* Field::instance = nullptr;
 
 Field::Field(PreFieldPiece *fieldPiece)
 {
-    centerPiece = new FieldPiece(fieldPiece);
+    centerPiece = new FieldPiece(this,fieldPiece);
  
 
-    this->greenCharacter = new Character("green character",this->centerPiece,this->centerPiece->tile->tileToRight);
-    this->purpleCharacter = new Character("purple character",this->centerPiece,this->centerPiece->tile->tileToRight->tileToRight->tileBellow);
-    this->yellowCharacter = new Character("yellow character",this->centerPiece,this->centerPiece->tile->tileToRight->tileBellow->tileBellow);
-    this->orangeCharacter = new Character("orange character",this->centerPiece,this->centerPiece->tile->tileToRight->tileToRight->tileBellow->tileBellow);
+    this->greenCharacter = new Character("green",this->centerPiece,this->centerPiece->tile->tileToRight);
+    this->purpleCharacter = new Character("purple",this->centerPiece,this->centerPiece->tile->tileToRight->tileToRight->tileBellow);
+    this->yellowCharacter = new Character("yellow",this->centerPiece,this->centerPiece->tile->tileToRight->tileBellow->tileBellow);
+    this->orangeCharacter = new Character("orange",this->centerPiece,this->centerPiece->tile->tileToRight->tileToRight->tileBellow->tileBellow);
 }
 
 Field::Field(FieldPiece *fieldPiece)

@@ -18,16 +18,32 @@ Character::Character(std::string name, FieldPiece *startingFieldPiece, Tile *sta
     this->tileOn = startingTile;
 }
 
-std::vector<Tile*> Character::getPlausibleTargetTiles(MovementAbility *playerMovementAbility)
+std::vector<Tile *> Character::getPlausibleTargetTiles(MovementAbility *playerMovementAbility)
 {
-    std::vector<Tile*> plausibleTargetTiles;
+    std::vector<Tile *> plausibleTargetTiles;
     if (this->tileOn != nullptr)
     {
         plausibleTargetTiles = (tileOn)->getPlausibleTargetTiles(playerMovementAbility);
     }
+
+
+    std::vector<Tile *> portals;
+    if (this->name == "green")
+        portals = Field::getInstance().greenPortals;
+    if (this->name == "purple")
+        portals = Field::getInstance().purplePortals;
+    if (this->name == "orange")
+        portals = Field::getInstance().orangePortals;
+    if (this->name == "yellow")
+        portals = Field::getInstance().yellowPortals;
+    for (Tile *tile : portals)
+    {
+        if(tile!=nullptr && playerMovementAbility->canUsePortals&&Field::getInstance().isTileVacated(tile))
+            plausibleTargetTiles.push_back(tile);
+        // 
+    }
     return plausibleTargetTiles;
 }
-
 
 // void Character::move(Tile *tile,MovementAbility *playerMovementAbility){
 //     std::vector<Tile*> plausibleTiles = getPlausibleTargetTiles(playerMovementAbility);
@@ -36,19 +52,23 @@ std::vector<Tile*> Character::getPlausibleTargetTiles(MovementAbility *playerMov
 //     }
 // }
 
-void Character::move(Tile *tile, MovementAbility *playerMovementAbility) {
+void Character::move(Tile *tile, MovementAbility *playerMovementAbility)
+{
     // Check if the tile is a plausible target tile
-    std::vector<Tile*> plausibleTargetTiles = getPlausibleTargetTiles(playerMovementAbility);
+    std::vector<Tile *> plausibleTargetTiles = getPlausibleTargetTiles(playerMovementAbility);
     bool isValidMove = false;
-    for (Tile* targetTile : plausibleTargetTiles) {
-        if (targetTile == tile) {
+    for (Tile *targetTile : plausibleTargetTiles)
+    {
+        if (targetTile == tile)
+        {
             isValidMove = true;
             break;
         }
     }
     // std::vector<//TODO add option for going into portal
-    
-    if (isValidMove) {
-        this->tileOn=tile;
+
+    if (isValidMove)
+    {
+        this->tileOn = tile;
     }
 }
