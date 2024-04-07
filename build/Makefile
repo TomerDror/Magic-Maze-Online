@@ -23,4 +23,5 @@
 # clean:
 # 	rm -f $(EXEDIR)/*
 
- g++ -Wall -Wextra -o ../exes/backend/main ../src/backend/main.cpp ../src/backend/Player.cpp ../src/backend/Field.cpp ../src/backend/Character.cpp ../src/backend/PreFieldPiece.cpp ../src/backend/FieldPiece.cpp ../src/backend/Tile.cpp -lws2_32 -lsqlite3
+ g++ -Wall -Wextra -o ../exes/backend/client ../src/backend/main.cpp ../src/backend/Player.cpp ../src/backend/Field.cpp ../src/backend/Character.cpp ../src/backend/PreFieldPiece.cpp ../src/backend/FieldPiece.cpp ../src/backend/Tile.cpp -lws2_32 -lsqlite3
+ g++ -Wall -Wextra -o ../exes/backend/server ../src/backend/Server.cpp -lws2_32 -lsqlite3
