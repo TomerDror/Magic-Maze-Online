@@ -33,21 +33,21 @@ Field* Field::instance = nullptr;
     }
 
     // Assign values to the tiles
-    tiles[0][0] = 120;
-    tiles[0][1] = 30;
-    tiles[0][2] = 655;
-    tiles[0][3] = 340;
-    tiles[1][0] = 396;
-    tiles[1][1] = 31;
-    tiles[1][2] = 31;
-    tiles[1][3] = 852;
-    tiles[2][0] = 600;
-    tiles[2][1] = 31;
-    tiles[2][2] = 23;
-    tiles[2][3] = 6240;
-    tiles[3][0] = 88;
-    tiles[3][1] = 911;
-    tiles[3][2] = 9317;
+    tiles[0][0] =  10120;
+    tiles[0][1] =  20030;
+    tiles[0][2] =  30655;
+    tiles[0][3] =  40340;
+    tiles[1][0] =  50396;
+    tiles[1][1] =  60031;
+    tiles[1][2] =  70031;
+    tiles[1][3] =  80852;
+    tiles[2][0] =  90600;
+    tiles[2][1] = 100031;
+    tiles[2][2] = 110023;
+    tiles[2][3] = 126240;
+    tiles[3][0] = 130088;
+    tiles[3][1] = 140911;
+    tiles[3][2] = 159317;
     tiles[3][3] = 0;
 
 

@@ -142,7 +142,7 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
                     }
                     currTile->escalatorTo = escalatorTile;
                 }
-                std::cout<<"type "<< currTile->tileType<<" type ";
+                // std::cout<<"type "<< currTile->tileType<<" type ";
                 if (Utils::getTileFeature(field[y][x]) == "portal")
                 {
                     if (Utils::getTileColor(field[y][x]) == "green")

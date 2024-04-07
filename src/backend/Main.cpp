@@ -40,10 +40,10 @@ void HandleServerMessages(SOCKET serverSocket)
         }
 
         buffer[bytesReceived] = '\0';
-        std::cout << "Received from server: " << buffer << std::endl;
+        // std::cout << "Received from server: " << buffer << std::endl;
         std::queue<std::string> cmd = splitString(buffer);
         handleCmd(&cmd);
-        printPossibleMoves(firstPlayer.movementAbility);
+        // printPossibleMoves(firstPlayer.movementAbility);
     }
 }
 
@@ -87,25 +87,42 @@ void ClientMain()
     // Main loop to send commands to the server
     while (true)
     {
-        std::string cmd;
+        std::string cmdStr;
         std::string color;
         // int number = 0;
 
         std::cout << "Enter a command: ";
-        std::getline(std::cin, cmd);
-        std::replace(cmd.begin(), cmd.end(), ' ', '$');
-        if (cmd != "start")
-            cmd.append(movementAbilityToCmdStr(firstPlayer.movementAbility));
+        std::getline(std::cin, cmdStr);
+        std::replace(cmdStr.begin(), cmdStr.end(), ' ', '$');
+        std::queue<std::string> cmd = splitString(cmdStr.c_str());
+        if (cmd.front() == "move")
+            cmdStr.append(movementAbilityToCmdStr(firstPlayer.movementAbility));
 
-        if (send(clientSocket, cmd.c_str(), cmd.length(), 0) == SOCKET_ERROR)
+        if (cmd.front() !="get" && send(clientSocket, cmdStr.c_str(), cmdStr.length(), 0) == SOCKET_ERROR)
         {
             std::cerr << "Error sending message to server: " << WSAGetLastError() << std::endl;
             break;
         }
 
-        if (cmd == "quit")
+        if (cmd.front() == "quit")
         {
             break;
+        }
+        if(cmd.front() == "get"){
+            cmd.pop();
+            if(cmd.front() == "green"){
+                printPossibleMoves(Field::getInstance().getGreenCharacter(),firstPlayer.movementAbility);
+            }
+            if(cmd.front() == "purple"){
+                printPossibleMoves(Field::getInstance().getPurpleCharacter(),firstPlayer.movementAbility);
+            }
+            if(cmd.front() == "orange"){
+                printPossibleMoves(Field::getInstance().getOrangeCharacter(),firstPlayer.movementAbility);
+            }
+            if(cmd.front() == "yellow"){
+                printPossibleMoves(Field::getInstance().getYellowCharacter(),firstPlayer.movementAbility);
+            }
+            
         }
     }
 
