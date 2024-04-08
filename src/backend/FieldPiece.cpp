@@ -116,7 +116,7 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
                     currTile->tileAbove = upTile;
                 }
                 
-                // std::cout << Utils::getTileFeature(field[y][x]) <<" "<<x<<","<<y<< "\n";
+                std::cout << Utils::getTileFeature(field[y][x])<<" "<<field[y][x] <<" "<<x<<","<<y<< "\n";
                 if (Utils::getTileFeature(field[y][x]) == "escalator")
                 {
 
@@ -143,11 +143,13 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
                     currTile->escalatorTo = escalatorTile;
                 }
                 // std::cout<<"type "<< currTile->tileType<<" type ";
+                        std::cout<<" yay1 ";
                 if (Utils::getTileFeature(field[y][x]) == "portal")
                 {
+                        std::cout<<" yay2 ";
                     if (Utils::getTileColor(field[y][x]) == "green")
                     {
-                        std::cout<<"yay";
+                        std::cout<<" yay3" ;
                         playingField->greenPortals.push_back(currTile);
                     }
                     if (Utils::getTileColor(field[y][x]) == "purple")

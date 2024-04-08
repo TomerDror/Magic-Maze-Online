@@ -64,7 +64,7 @@ Field::Field(PreFieldPiece *fieldPiece)
     centerPiece = new FieldPiece(this,fieldPiece);
  
 
-    this->greenCharacter = new Character("green",this->centerPiece,this->centerPiece->tile->tileToRight);
+    this->greenCharacter = new Character("green",this->centerPiece,this->centerPiece->tile->tileToRight->tileBellow);
     this->purpleCharacter = new Character("purple",this->centerPiece,this->centerPiece->tile->tileToRight->tileToRight->tileBellow);
     this->yellowCharacter = new Character("yellow",this->centerPiece,this->centerPiece->tile->tileToRight->tileBellow->tileBellow);
     this->orangeCharacter = new Character("orange",this->centerPiece,this->centerPiece->tile->tileToRight->tileToRight->tileBellow->tileBellow);

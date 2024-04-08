@@ -1,3 +1,5 @@
+
+
 #include <iostream>
 #include <WinSock2.h>
 #include <thread>
@@ -8,6 +10,8 @@
 #include "Player.h"
 #include "Tile.h"
 #include <iostream>
+#include <fstream>
+
 #include <queue>
 
 bool stringToBool(const std::string &str);
@@ -16,7 +20,7 @@ void printPossibleMoves(MovementAbility *movementAbility);
 void printPossibleMoves(Character *character, MovementAbility *movementAbility);
 std::string movementAbilityToCmdStr(MovementAbility *movementAbility);
 std::queue<std::string> splitString(const char input[]);
-MovementAbility *queueToMovementAbility(std::queue<std::string> *cmd,MovementAbility *movementAbility);
+MovementAbility *queueToMovementAbility(std::queue<std::string> *cmd, MovementAbility *movementAbility);
 void handleCmd(std::queue<std::string> *cmd);
 
 const char *SERVER_IP = "127.0.0.1"; // Change this to the server's IP address
@@ -29,7 +33,7 @@ void HandleServerMessages(SOCKET serverSocket)
     char buffer[BUFFER_SIZE];
     int bytesReceived;
 
-    printPossibleMoves(firstPlayer.movementAbility);
+    // printPossibleMoves(firstPlayer.movementAbility);
     while (true)
     {
         bytesReceived = recv(serverSocket, buffer, BUFFER_SIZE, 0);
@@ -79,11 +83,20 @@ void ClientMain()
         return;
     }
 
-    std::cout << "Connected to server." << std::endl;
-
-    // Start a thread to handle server messages
+    std::cout << "Connected to server.";
     std::thread serverThread(HandleServerMessages, clientSocket);
+    // int exitCode = system("C:\\Users\\tomer\\Documents\\school\\cpProject\\src\\frontend\\screen.py");
 
+    // // Start a thread to handle server messages
+    // if (exitCode == 0)
+    // {
+    //     std::cout << "Python script executed successfully." << std::endl;
+    // }
+    // else
+    // {
+    //     std::cerr << "Error: Python script execution failed." << std::endl;
+    //     return ; // Return a non-zero value to indicate failure
+    // }
     // Main loop to send commands to the server
     while (true)
     {
@@ -91,14 +104,52 @@ void ClientMain()
         std::string color;
         // int number = 0;
 
-        std::cout << "Enter a command: ";
-        std::getline(std::cin, cmdStr);
+        // std::cout << "Enter a command: ";
+        // std::getline(std::cin, cmdStr);
+        std::ifstream MyReadFile("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt");
+
+        if (MyReadFile.is_open())
+        {                                // Check if file is open
+            getline(MyReadFile, cmdStr); // Read a line from the file into cmdStr
+            if (cmdStr.empty())
+            {
+                MyReadFile.close(); // Close the file
+            }
+            else
+            {
+
+                std::cout << cmdStr;
+                MyReadFile.close(); // Close the file
+
+                std::ofstream file("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt", std::ofstream::out | std::ofstream::trunc);
+
+                if (file.is_open())
+                {
+                    file.close();
+                    //     // std::cout << "File contents deleted successfully." << std::endl;
+                }
+                // else
+                // {
+                //     std::cerr << "Unable to open file!";
+                //     return;
+                // }
+            }
+        }
+        else
+        {
+            std::cerr << "Unable to open file!" << std::endl; // Print error message if file cannot be opened
+            return;                                           // Return non-zero to indicate failure
+        }
+
         std::replace(cmdStr.begin(), cmdStr.end(), ' ', '$');
         std::queue<std::string> cmd = splitString(cmdStr.c_str());
         if (cmd.front() == "move")
+        {
+            // std::cout << "moving";
             cmdStr.append(movementAbilityToCmdStr(firstPlayer.movementAbility));
+        }
 
-        if (cmd.front() !="get" && send(clientSocket, cmdStr.c_str(), cmdStr.length(), 0) == SOCKET_ERROR)
+        if (cmd.front() != "get" && cmd.front() != "getCharacter" && send(clientSocket, cmdStr.c_str(), cmdStr.length(), 0) == SOCKET_ERROR)
         {
             std::cerr << "Error sending message to server: " << WSAGetLastError() << std::endl;
             break;
@@ -108,22 +159,56 @@ void ClientMain()
         {
             break;
         }
-        if(cmd.front() == "get"){
+        if (cmd.front() == "getCharacter")
+        {
             cmd.pop();
-            if(cmd.front() == "green"){
-                printPossibleMoves(Field::getInstance().getGreenCharacter(),firstPlayer.movementAbility);
+            if (std::stoi(cmd.front()) == Field::getInstance().getGreenCharacter()->tileOn->tileType / 10000)
+            {
+                std::cout << "green character\n";
+                printPossibleMoves(Field::getInstance().getGreenCharacter(), firstPlayer.movementAbility);
             }
-            if(cmd.front() == "purple"){
-                printPossibleMoves(Field::getInstance().getPurpleCharacter(),firstPlayer.movementAbility);
+            else if (std::stoi(cmd.front()) == Field::getInstance().getPurpleCharacter()->tileOn->tileType / 10000)
+            {
+                std::cout << "purple character\n";
+                printPossibleMoves(Field::getInstance().getPurpleCharacter(), firstPlayer.movementAbility);
             }
-            if(cmd.front() == "orange"){
-                printPossibleMoves(Field::getInstance().getOrangeCharacter(),firstPlayer.movementAbility);
+            else if (std::stoi(cmd.front()) == Field::getInstance().getOrangeCharacter()->tileOn->tileType / 10000)
+            {
+                std::cout << "orange character\n";
+                printPossibleMoves(Field::getInstance().getOrangeCharacter(), firstPlayer.movementAbility);
             }
-            if(cmd.front() == "yellow"){
-                printPossibleMoves(Field::getInstance().getYellowCharacter(),firstPlayer.movementAbility);
+            else if (std::stoi(cmd.front()) == Field::getInstance().getYellowCharacter()->tileOn->tileType / 10000)
+            {
+                std::cout << "yellow character\n";
+                printPossibleMoves(Field::getInstance().getYellowCharacter(), firstPlayer.movementAbility);
             }
-            
+            else
+            {
+                std::cout << "no character on squere " << cmd.front();
+            }
+            std::cout << "\n";
         }
+        if (cmd.front() == "get")
+        {
+            cmd.pop();
+            if (cmd.front() == "green")
+            {
+                printPossibleMoves(Field::getInstance().getGreenCharacter(), firstPlayer.movementAbility);
+            }
+            if (cmd.front() == "purple")
+            {
+                printPossibleMoves(Field::getInstance().getPurpleCharacter(), firstPlayer.movementAbility);
+            }
+            if (cmd.front() == "orange")
+            {
+                printPossibleMoves(Field::getInstance().getOrangeCharacter(), firstPlayer.movementAbility);
+            }
+            if (cmd.front() == "yellow")
+            {
+                printPossibleMoves(Field::getInstance().getYellowCharacter(), firstPlayer.movementAbility);
+            }
+        }
+        // std::this_thread::sleep_for(std::chrono::milliseconds(2000));  // Sleep for 100 milliseconds
     }
 
     // Close the socket and join the server thread
@@ -184,11 +269,29 @@ void printPossibleMoves(Character *character, MovementAbility *movementAbility)
 {
     std::cout << "possible " << (character->name) << " tiles ";
     std::vector<Tile *> possibleTiles = character->getPlausibleTargetTiles(movementAbility);
+    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+    if (outFile.is_open())
+        outFile << character->name << "$";
+    // Check if the file opened successfully
+
     for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
+
     {
 
-        std::cout << possibleTiles[i]->tileType << " ";
+        if (outFile.is_open())
+        {
+            // Write data to the file
+            outFile << possibleTiles[i]->tileType / 10000;
+            if (i != possibleTiles.size() - 1)
+            {
+                outFile << "$";
+            }
+        }
+        std::cout << possibleTiles[i]->tileType / 10000 << " ";
     }
+    if (outFile.is_open())
+        outFile.close();
+
     std::cout << "\n";
 }
 
@@ -211,66 +314,84 @@ void handleCmd(std::queue<std::string> *cmd)
         number = std::stoi(cmd->front());
         cmd->pop();
         // std::cout<<color<<" \n";
-
-            movementAbility = queueToMovementAbility(cmd, movementAbility);
+        bool didMove = false;
+        movementAbility = queueToMovementAbility(cmd, movementAbility);
         if (color == "green")
         {
             std::vector<Tile *> possibleTiles = Field::getInstance().getGreenCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                // std::cout<< possibleTiles[i]->tileType;
-                // std::cout<< number;
-                // std::cout<< "\n";
-                // std::cout<< movementAbility->canMoveUp;
-                // std::cout<< movementAbility->canMoveDown;
-                // std::cout<< movementAbility->canMoveLeft;
-                // std::cout<< movementAbility->canMoveRight;
-                // std::cout<< movementAbility->canUseEscalator;
-                // std::cout<< "\n";
-                if (possibleTiles[i]->tileType == number)
+                if (possibleTiles[i]->tileType / 10000 == number)
                 {
+                     didMove = true;
+
                     Field::getInstance().getGreenCharacter()->move(possibleTiles[i], movementAbility);
+                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+                    if (outFile.is_open())
+                        outFile << "move$" << color << "$" << number;
                 }
             }
         }
-        if (color == "purple")
+        else if (color == "purple")
         {
             std::vector<Tile *> possibleTiles = Field::getInstance().getPurpleCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                if (possibleTiles[i]->tileType == number)
+                if (possibleTiles[i]->tileType / 10000 == number)
                 {
+                     didMove = true;
+
                     Field::getInstance().getPurpleCharacter()->move(possibleTiles[i], movementAbility);
+                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+                    if (outFile.is_open())
+                        outFile << "move$" << color << "$" << number;
                 }
             }
         }
-        if (color == "orange")
+        else if (color == "orange")
         {
             std::vector<Tile *> possibleTiles = Field::getInstance().getOrangeCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                if (possibleTiles[i]->tileType == number)
+                if (possibleTiles[i]->tileType / 10000 == number)
                 {
+                     didMove = true;
+
                     Field::getInstance().getOrangeCharacter()->move(possibleTiles[i], movementAbility);
+                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+                    if (outFile.is_open())
+                        outFile << "move$" << color << "$" << number;
                 }
             }
         }
-        if (color == "yellow")
+        else if (color == "yellow")
         {
             std::vector<Tile *> possibleTiles = Field::getInstance().getYellowCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                if (possibleTiles[i]->tileType == number)
+                if (possibleTiles[i]->tileType / 10000 == number)
                 {
+                     didMove = true;
 
+                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+                    if (outFile.is_open())
+                        outFile << "move$" << color << "$" << number;
                     Field::getInstance().getYellowCharacter()->move(possibleTiles[i], movementAbility);
                 }
             }
         }
+
+        if(!didMove)
+        {
+            std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+            if (outFile.is_open())
+                outFile << "move$nowhere";
+            std::cout << "moving nowhere";
+        }
     }
 }
 
-MovementAbility *queueToMovementAbility(std::queue<std::string> *cmd,MovementAbility *movementAbility)
+MovementAbility *queueToMovementAbility(std::queue<std::string> *cmd, MovementAbility *movementAbility)
 {
     movementAbility->canMoveUp = stringToBool(cmd->front());
     cmd->pop();
@@ -287,7 +408,7 @@ MovementAbility *queueToMovementAbility(std::queue<std::string> *cmd,MovementAbi
     movementAbility->canOpenFieldPiece = stringToBool(cmd->front());
     cmd->pop();
     return movementAbility;
-    }
+}
 
 bool stringToBool(const std::string &str)
 {
@@ -315,72 +436,3 @@ bool stringToBool(const std::string &str)
         throw std::invalid_argument("Invalid boolean string representation: " + str);
     }
 }
-
-// int main() {
-// Player firstPlayer(1,1,0,1,0,0,0);
-
-//     while(true){
-//         std::string cmd;
-//         std::string color;
-//         int number = 0;
-
-//         std::cout << "Enter a command: ";
-//         std::cin >> cmd;
-//         cmd.erase(std::remove(cmd.begin(), cmd.end(), ' '), cmd.end());
-
-//         if(cmd =="stop"){
-//             break;
-//         }
-//         if (cmd == "move") {
-//             std::cout << "Enter a color: ";
-//             std::cin >> color;
-
-//             while (true) {
-//                 std::cout << "Enter a number: ";
-//                 if (!(std::cin >> number)) {
-//                     std::cout << "Please enter a valid number." << std::endl;
-//                     std::cin.clear();
-//                     std::cin.ignore(100, '\n');
-//                 } else {
-//                     break;
-//                 }
-//             }
-
-//             color.erase(std::remove(color.begin(), color.end(), ' '), color.end());
-//             if(color == "green"){
-//                 std::vector<Tile*> possibleTiles = Field::getInstance().getGreenCharacter()->getPlausibleTargetTiles(firstPlayer.movementAbility);
-//                 for (std::vector<Tile*>::size_type i = 0; i < possibleTiles.size(); ++i) {
-//                     if(possibleTiles[i]->tileType  == number){
-//                         Field::getInstance().getGreenCharacter()->move(possibleTiles[i],firstPlayer.movementAbility);
-//                     }
-//                 }
-//             }
-//             if(color == "purple"){
-//                 std::vector<Tile*> possibleTiles = Field::getInstance().getPurpleCharacter()->getPlausibleTargetTiles(firstPlayer.movementAbility);
-//                 for (std::vector<Tile*>::size_type i = 0; i < possibleTiles.size(); ++i) {
-//                     if(possibleTiles[i]->tileType  == number){
-//                         Field::getInstance().getPurpleCharacter()->move(possibleTiles[i],firstPlayer.movementAbility);
-//                     }
-//                 }
-//             }
-//             if(color == "orange"){
-//                 std::vector<Tile*> possibleTiles = Field::getInstance().getOrangeCharacter()->getPlausibleTargetTiles(firstPlayer.movementAbility);
-//                 for (std::vector<Tile*>::size_type i = 0; i < possibleTiles.size(); ++i) {
-//                     if(possibleTiles[i]->tileType  == number){
-//                         Field::getInstance().getOrangeCharacter()->move(possibleTiles[i],firstPlayer.movementAbility);
-//                     }
-//                 }
-//             }
-//             if(color == "yellow"){
-//                 std::vector<Tile*> possibleTiles = Field::getInstance().getYellowCharacter()->getPlausibleTargetTiles(firstPlayer.movementAbility);
-//                 for (std::vector<Tile*>::size_type i = 0; i < possibleTiles.size(); ++i) {
-//                     if(possibleTiles[i]->tileType  == number){
-//                         Field::getInstance().getYellowCharacter()->move(possibleTiles[i],firstPlayer.movementAbility);
-//                     }
-//                 }
-//             }
-//         }
-//     }//move green 102
-
-//     return 0;
-// }
