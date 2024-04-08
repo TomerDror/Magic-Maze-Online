@@ -107,7 +107,7 @@ while True:
 
     # Draw circles
     pygame.draw.circle(screen, colors[0], (int(green % 4 * cell_size + cell_size // 2), int(green / 4) * cell_size + cell_size // 2), int(cell_size // 3))
-    pygame.draw.circle(screen, colors[1], (int(purple % 4 * cell_size + cell_size // 2), int(purple / 4) * cell_size + cell_size // 2), int(cell_size // 3))
-    pygame.draw.circle(screen, colors[2], (int(orange % 4 * cell_size + cell_size // 2), int(orange / 4) * cell_size + cell_size // 2), int(cell_size // 3))
-    pygame.draw.circle(screen, colors[3], (int(yellow % 4 * cell_size + cell_size // 2), int(yellow / 4) * cell_size + cell_size // 2), int(cell_size // 3))
+    pygame.draw.circle(screen, colors[2], (int(purple % 4 * cell_size + cell_size // 2), int(purple / 4) * cell_size + cell_size // 2), int(cell_size // 3))
+    pygame.draw.circle(screen, colors[3], (int(orange % 4 * cell_size + cell_size // 2), int(orange / 4) * cell_size + cell_size // 2), int(cell_size // 3))
+    pygame.draw.circle(screen, colors[1], (int(yellow % 4 * cell_size + cell_size // 2), int(yellow / 4) * cell_size + cell_size // 2), int(cell_size // 3))
     pygame.display.flip()

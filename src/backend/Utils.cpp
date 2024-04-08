@@ -1,8 +1,7 @@
 #include "Utils.h"
  std::string Utils::getTileFeature(int tileValue)
 {
-    int feature = extractBits(tileValue, Constants::tileTypeFeatureStart, Constants::tileTypeFeatureEnd);
-    // std::cout<<"tile "<<tileValue<<" feature " <<feature;
+    int feature = extractBits(tileValue%100000, Constants::tileTypeFeatureStart, Constants::tileTypeFeatureEnd);
     switch (feature)
     {
     case 0:
@@ -39,7 +38,7 @@
 }
  std::string Utils::getTileColor(int tileValue)
 {
-    int color = extractBits(tileValue, Constants::tileTypeColorStart, Constants::tileTypeColorEnd);
+    int color = extractBits(tileValue%100000, Constants::tileTypeColorStart, Constants::tileTypeColorEnd);
     if (color == 0)
     {
         return "green";
@@ -61,7 +60,7 @@
 
  int Utils::getDirectionBitwise(int tileValue)
 {
-    return extractBits(tileValue, Constants::tileTypeDirectionStart, Constants::tileTypeDirectionEnd);
+    return extractBits(tileValue%100000, Constants::tileTypeDirectionStart, Constants::tileTypeDirectionEnd);
 }
  std::string Utils::getDirection(int tileValue)
 {
@@ -96,22 +95,22 @@
 
  bool Utils::tileBlockedMoveUp(int tileValue)
 {
-    return !Utils::extractBits(tileValue, Constants::tileTypeBlockedMoveUp, Constants::tileTypeBlockedMoveUp);
+    return !Utils::extractBits(tileValue%100000, Constants::tileTypeBlockedMoveUp, Constants::tileTypeBlockedMoveUp);
 }
 
  bool Utils::tileBlockedMoveDown(int tileValue)
 {
-    return !Utils::extractBits(tileValue, Constants::tileTypeBlockedMoveDown, Constants::tileTypeBlockedMoveDown);
+    return !Utils::extractBits(tileValue%100000, Constants::tileTypeBlockedMoveDown, Constants::tileTypeBlockedMoveDown);
 }
 
  bool Utils::tileBlockedMoveLeft(int tileValue)
 {
-    return !Utils::extractBits(tileValue, Constants::tileTypeBlockedMoveLeft, Constants::tileTypeBlockedMoveLeft);
+    return !Utils::extractBits(tileValue%100000, Constants::tileTypeBlockedMoveLeft, Constants::tileTypeBlockedMoveLeft);
 }
 
  bool Utils::tileBlockedMoveRight(int tileValue)
 {
-    return !Utils::extractBits(tileValue, Constants::tileTypeBlockedMoveRight, Constants::tileTypeBlockedMoveRight);
+    return !Utils::extractBits(tileValue%100000, Constants::tileTypeBlockedMoveRight, Constants::tileTypeBlockedMoveRight);
 }
 
  int Utils::extractBits(int num, int start, int end)

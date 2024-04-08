@@ -1,5 +1,3 @@
-
-
 #include <iostream>
 #include <WinSock2.h>
 #include <thread>
@@ -26,7 +24,7 @@ void handleCmd(std::queue<std::string> *cmd);
 const char *SERVER_IP = "127.0.0.1"; // Change this to the server's IP address
 const int SERVER_PORT = 27015;
 const int BUFFER_SIZE = 1024;
-Player firstPlayer(1, 1, 0, 1, 0, 0, 0);
+Player firstPlayer(1, 1, 0, 1, 1, 1, 1);
 
 void HandleServerMessages(SOCKET serverSocket)
 {
@@ -162,22 +160,22 @@ void ClientMain()
         if (cmd.front() == "getCharacter")
         {
             cmd.pop();
-            if (std::stoi(cmd.front()) == Field::getInstance().getGreenCharacter()->tileOn->tileType / 10000)
+            if (std::stoi(cmd.front()) == Field::getInstance().getGreenCharacter()->tileOn->tileType / 100000)
             {
                 std::cout << "green character\n";
                 printPossibleMoves(Field::getInstance().getGreenCharacter(), firstPlayer.movementAbility);
             }
-            else if (std::stoi(cmd.front()) == Field::getInstance().getPurpleCharacter()->tileOn->tileType / 10000)
+            else if (std::stoi(cmd.front()) == Field::getInstance().getPurpleCharacter()->tileOn->tileType / 100000)
             {
                 std::cout << "purple character\n";
                 printPossibleMoves(Field::getInstance().getPurpleCharacter(), firstPlayer.movementAbility);
             }
-            else if (std::stoi(cmd.front()) == Field::getInstance().getOrangeCharacter()->tileOn->tileType / 10000)
+            else if (std::stoi(cmd.front()) == Field::getInstance().getOrangeCharacter()->tileOn->tileType / 100000)
             {
                 std::cout << "orange character\n";
                 printPossibleMoves(Field::getInstance().getOrangeCharacter(), firstPlayer.movementAbility);
             }
-            else if (std::stoi(cmd.front()) == Field::getInstance().getYellowCharacter()->tileOn->tileType / 10000)
+            else if (std::stoi(cmd.front()) == Field::getInstance().getYellowCharacter()->tileOn->tileType / 100000)
             {
                 std::cout << "yellow character\n";
                 printPossibleMoves(Field::getInstance().getYellowCharacter(), firstPlayer.movementAbility);
@@ -281,13 +279,13 @@ void printPossibleMoves(Character *character, MovementAbility *movementAbility)
         if (outFile.is_open())
         {
             // Write data to the file
-            outFile << possibleTiles[i]->tileType / 10000;
+            outFile << possibleTiles[i]->tileType / 100000;
             if (i != possibleTiles.size() - 1)
             {
                 outFile << "$";
             }
         }
-        std::cout << possibleTiles[i]->tileType / 10000 << " ";
+        std::cout << possibleTiles[i]->tileType / 100000 << " ";
     }
     if (outFile.is_open())
         outFile.close();
@@ -321,7 +319,7 @@ void handleCmd(std::queue<std::string> *cmd)
             std::vector<Tile *> possibleTiles = Field::getInstance().getGreenCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                if (possibleTiles[i]->tileType / 10000 == number)
+                if (possibleTiles[i]->tileType / 100000 == number)
                 {
                      didMove = true;
 
@@ -337,7 +335,7 @@ void handleCmd(std::queue<std::string> *cmd)
             std::vector<Tile *> possibleTiles = Field::getInstance().getPurpleCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                if (possibleTiles[i]->tileType / 10000 == number)
+                if (possibleTiles[i]->tileType / 100000 == number)
                 {
                      didMove = true;
 
@@ -353,7 +351,7 @@ void handleCmd(std::queue<std::string> *cmd)
             std::vector<Tile *> possibleTiles = Field::getInstance().getOrangeCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                if (possibleTiles[i]->tileType / 10000 == number)
+                if (possibleTiles[i]->tileType / 100000 == number)
                 {
                      didMove = true;
 
@@ -369,7 +367,7 @@ void handleCmd(std::queue<std::string> *cmd)
             std::vector<Tile *> possibleTiles = Field::getInstance().getYellowCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                if (possibleTiles[i]->tileType / 10000 == number)
+                if (possibleTiles[i]->tileType / 100000 == number)
                 {
                      didMove = true;
 

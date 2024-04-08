@@ -116,12 +116,12 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
                     currTile->tileAbove = upTile;
                 }
                 
-                std::cout << Utils::getTileFeature(field[y][x])<<" "<<field[y][x] <<" "<<x<<","<<y<< "\n";
+                std::cout << Utils::getTileFeature(field[y][x])<<" " <<" "<<x<<","<<y<< "\n";
                 if (Utils::getTileFeature(field[y][x]) == "escalator")
                 {
 
                     int direction = Utils::getDirectionBitwise(field[y][x]);
-                    // std::cout<<"diraciton"<<direction;
+                    std::cout<<"diraciton"<<direction;
                     int escalatorX = x;
                     int escalatorY = y;
                     escalatorY -= ((direction >> 3) & 1) - ((direction >> 2) & 1);
@@ -143,7 +143,7 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
                     currTile->escalatorTo = escalatorTile;
                 }
                 // std::cout<<"type "<< currTile->tileType<<" type ";
-                        std::cout<<" yay1 ";
+                        // std::cout<<" yay1 ";
                 if (Utils::getTileFeature(field[y][x]) == "portal")
                 {
                         std::cout<<" yay2 ";
