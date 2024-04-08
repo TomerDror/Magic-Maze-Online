@@ -21,10 +21,10 @@ std::queue<std::string> splitString(const char input[]);
 MovementAbility *queueToMovementAbility(std::queue<std::string> *cmd, MovementAbility *movementAbility);
 void handleCmd(std::queue<std::string> *cmd);
 
-const char *SERVER_IP = "127.0.0.1"; // Change this to the server's IP address
+const char *SERVER_IP = "192.168.0.155"; // Change this to the server's IP address
 const int SERVER_PORT = 27015;
 const int BUFFER_SIZE = 1024;
-Player firstPlayer(1, 1, 0, 1, 1, 1, 1);
+Player firstPlayer(1, 1, 0, 0, 0, 0, 0);
 
 void HandleServerMessages(SOCKET serverSocket)
 {
@@ -83,7 +83,6 @@ void ClientMain()
 
     std::cout << "Connected to server.";
     std::thread serverThread(HandleServerMessages, clientSocket);
-    // int exitCode = system("C:\\Users\\tomer\\Documents\\school\\cpProject\\src\\frontend\\screen.py");
 
     // // Start a thread to handle server messages
     // if (exitCode == 0)
@@ -104,7 +103,7 @@ void ClientMain()
 
         // std::cout << "Enter a command: ";
         // std::getline(std::cin, cmdStr);
-        std::ifstream MyReadFile("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt");
+        std::ifstream MyReadFile("C://deleteme//toCpp.txt");
 
         if (MyReadFile.is_open())
         {                                // Check if file is open
@@ -119,7 +118,7 @@ void ClientMain()
                 std::cout << cmdStr;
                 MyReadFile.close(); // Close the file
 
-                std::ofstream file("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt", std::ofstream::out | std::ofstream::trunc);
+                std::ofstream file("C://deleteme//toCpp.txt", std::ofstream::out | std::ofstream::trunc);
 
                 if (file.is_open())
                 {
@@ -267,7 +266,7 @@ void printPossibleMoves(Character *character, MovementAbility *movementAbility)
 {
     std::cout << "possible " << (character->name) << " tiles ";
     std::vector<Tile *> possibleTiles = character->getPlausibleTargetTiles(movementAbility);
-    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+    std::ofstream outFile("C://deleteme//toPython.txt");
     if (outFile.is_open())
         outFile << character->name << "$";
     // Check if the file opened successfully
@@ -324,7 +323,7 @@ void handleCmd(std::queue<std::string> *cmd)
                      didMove = true;
 
                     Field::getInstance().getGreenCharacter()->move(possibleTiles[i], movementAbility);
-                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+                    std::ofstream outFile("C://delete//toPython.txt");
                     if (outFile.is_open())
                         outFile << "move$" << color << "$" << number;
                 }
@@ -340,7 +339,7 @@ void handleCmd(std::queue<std::string> *cmd)
                      didMove = true;
 
                     Field::getInstance().getPurpleCharacter()->move(possibleTiles[i], movementAbility);
-                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+                    std::ofstream outFile("C://deleteme//toPython.txt");
                     if (outFile.is_open())
                         outFile << "move$" << color << "$" << number;
                 }
@@ -356,7 +355,7 @@ void handleCmd(std::queue<std::string> *cmd)
                      didMove = true;
 
                     Field::getInstance().getOrangeCharacter()->move(possibleTiles[i], movementAbility);
-                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+                    std::ofstream outFile("C://deleteme//toPython.txt");
                     if (outFile.is_open())
                         outFile << "move$" << color << "$" << number;
                 }
@@ -371,7 +370,7 @@ void handleCmd(std::queue<std::string> *cmd)
                 {
                      didMove = true;
 
-                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+                    std::ofstream outFile("C://deleteme//toPython.txt");
                     if (outFile.is_open())
                         outFile << "move$" << color << "$" << number;
                     Field::getInstance().getYellowCharacter()->move(possibleTiles[i], movementAbility);
@@ -381,7 +380,7 @@ void handleCmd(std::queue<std::string> *cmd)
 
         if(!didMove)
         {
-            std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+            std::ofstream outFile("C://deleteme//toPython.txt");
             if (outFile.is_open())
                 outFile << "move$nowhere";
             std::cout << "moving nowhere";
