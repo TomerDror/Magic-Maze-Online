@@ -116,12 +116,12 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
                     currTile->tileAbove = upTile;
                 }
                 
-                std::cout << Utils::getTileFeature(field[y][x])<<" " <<" "<<x<<","<<y<< "\n";
+                // std::cout << Utils::getTileFeature(field[y][x])<<" " <<" "<<x<<","<<y<< "\n";
                 if (Utils::getTileFeature(field[y][x]) == "escalator")
                 {
 
                     int direction = Utils::getDirectionBitwise(field[y][x]);
-                    std::cout<<"diraciton"<<direction;
+                    // std::cout<<"diraciton"<<direction;
                     int escalatorX = x;
                     int escalatorY = y;
                     escalatorY -= ((direction >> 3) & 1) - ((direction >> 2) & 1);
@@ -130,7 +130,7 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
                     // std::cout<<"esc x,y "<< escalatorX<<","<<escalatorY<<"/n"; 
                     if (umap.find(10 * (escalatorY) + escalatorX) == umap.end())
                     {
-                        std::cout << " ,cr esc";
+                        // std::cout << " ,cr esc";
 
                         escalatorTile = new Tile(field[escalatorY][escalatorX]);
                         umap[10 * (escalatorY) + escalatorX] = escalatorTile;
@@ -146,10 +146,10 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
                         // std::cout<<" yay1 ";
                 if (Utils::getTileFeature(field[y][x]) == "portal")
                 {
-                        std::cout<<" yay2 ";
+                        // std::cout<<" yay2 ";
                     if (Utils::getTileColor(field[y][x]) == "green")
                     {
-                        std::cout<<" yay3" ;
+                        // std::cout<<" yay3" ;
                         playingField->greenPortals.push_back(currTile);
                     }
                     if (Utils::getTileColor(field[y][x]) == "purple")

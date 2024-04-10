@@ -38,7 +38,7 @@ std::vector<Tile *> Character::getPlausibleTargetTiles(MovementAbility *playerMo
         portals = Field::getInstance().yellowPortals;
     for (Tile *tile : portals)
     {
-        std::cout<<"fasdf";
+        // std::cout<<"fasdf";
         // if()
         if(tile!=nullptr && playerMovementAbility->canUsePortals&&Field::getInstance().isTileVacated(tile)){
             plausibleTargetTiles.push_back(tile);

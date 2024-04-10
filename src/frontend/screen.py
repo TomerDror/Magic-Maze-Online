@@ -101,7 +101,7 @@ while True:
             if state  == "starting":
                 x, y = event.pos
                 if 250 < x < 390 and 200 < y < 240:  # Login button
-                    state = "character selection"
+                    state = "target selection"
                     with open("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt", "w") as file:
                             file.write("start")
 
@@ -154,7 +154,7 @@ while True:
                     data = data[0:len(data)-1]
 
                 print("data "+ str(data))
-                if state == "target selection":
+                if data[0] == "move":
                     if data[1] == "green":
                         green = int(data[2])-1
                         targetpos =[]
