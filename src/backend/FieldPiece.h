@@ -17,6 +17,8 @@ class FieldPiece
 public:
 
     Tile *tile;
+    Tile *entrance;
+    
     FieldPiece *getLeftPiece();
     FieldPiece *getRightPiece();
     FieldPiece *getUpPiece();
@@ -28,5 +30,7 @@ public:
     FieldPiece *rightPiece;
     FieldPiece *upPiece;
     FieldPiece *downPiece;
+
+
 };
 #endif

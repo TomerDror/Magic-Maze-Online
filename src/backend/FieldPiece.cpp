@@ -115,7 +115,9 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
 
                     currTile->tileAbove = upTile;
                 }
-                
+                if(Utils::getTileFeature(field[y][x]) == "entrance"){
+                    this->entrance = currTile;
+                }
                 // std::cout << Utils::getTileFeature(field[y][x])<<" " <<" "<<x<<","<<y<< "\n";
                 if (Utils::getTileFeature(field[y][x]) == "escalator")
                 {

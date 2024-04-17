@@ -1,6 +1,7 @@
 #ifndef PREFIELDPIECE_H
 #define PREFIELDPIECE_H
 #include "Constants.h"
+#include "Utils.h"
 class PreFieldPiece {
 private:
     int** tiles;

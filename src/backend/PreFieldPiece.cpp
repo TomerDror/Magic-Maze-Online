@@ -22,7 +22,8 @@ void PreFieldPiece::rotateLeft()
         newTiles[i] = new int[size];
         for (int j = 0; j < size; j++)
         {
-            newTiles[i][j] = tiles[size - 1 - j][i];
+            newTiles[i][j] = (tiles[size - 1- j][i]);
+            Utils::rotateDiractionLeft(&newTiles[i][j]);
         }
     }
 

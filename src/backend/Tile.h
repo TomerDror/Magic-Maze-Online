@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include "Field.h"
+#include "FieldPiece.h"
 class Tile
 {
     public:
@@ -15,7 +16,7 @@ class Tile
         Tile *tileToRight;
         Tile *tileToLeft;
         int tileType;
-
+        FieldPiece *fieldPieceOn;
         Tile(int tileType);
 
         std::vector<Tile *> getPlausibleTargetTiles(MovementAbility *movementAbility);

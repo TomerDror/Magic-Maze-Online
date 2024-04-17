@@ -26,6 +26,7 @@ const int SERVER_PORT = 27015;
 const int BUFFER_SIZE = 1024;
 Player firstPlayer(1, 0, 1, 1, 1, 1, 1);
 
+bool printToText = false;
 void HandleServerMessages(SOCKET serverSocket)
 {
     char buffer[BUFFER_SIZE];
@@ -105,7 +106,7 @@ void ClientMain()
         // std::getline(std::cin, cmdStr);
         std::ifstream MyReadFile("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt");
 
-        if (MyReadFile.is_open())
+        if (printToText && MyReadFile.is_open())
         {                                // Check if file is open
             getline(MyReadFile, cmdStr); // Read a line from the file into cmdStr
             if (cmdStr.empty())
@@ -120,7 +121,7 @@ void ClientMain()
 
                 std::ofstream file("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt", std::ofstream::out | std::ofstream::trunc);
 
-                if (file.is_open())
+                if (printToText&&file.is_open())
                 {
                     file.close();
                     //     // std::cout << "File contents deleted successfully." << std::endl;
@@ -134,8 +135,8 @@ void ClientMain()
         }
         else
         {
-            std::cerr << "Unable to open file!" << std::endl; // Print error message if file cannot be opened
-            return;                                           // Return non-zero to indicate failure
+            std::cout << "Enter a command: ";
+            std::getline(std::cin, cmdStr); 
         }
 
         std::replace(cmdStr.begin(), cmdStr.end(), ' ', '$');
@@ -182,6 +183,7 @@ void ClientMain()
             else
             {
                 std::cout << "no character on squere " << cmd.front();
+                printPossibleMoves(Field::getInstance().getYellowCharacter(), firstPlayer.movementAbility);
             }
             std::cout << "\n";
         }
@@ -217,9 +219,12 @@ void ClientMain()
 
 int main()
 {
+    int a = 1206240;
+    Utils::rotateDiractionLeft(&a);
+    std::cout<<a;
 
-    std::thread clientThread(ClientMain);
-    clientThread.join();
+    // std::thread clientThread(ClientMain);
+    // clientThread.join();
 
     return 0;
 }
@@ -267,7 +272,7 @@ void printPossibleMoves(Character *character, MovementAbility *movementAbility)
     std::cout << "possible " << (character->name) << " tiles ";
     std::vector<Tile *> possibleTiles = character->getPlausibleTargetTiles(movementAbility);
     std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
-    if (outFile.is_open())
+    if (printToText && outFile.is_open())
         outFile << character->name << "$";
     // Check if the file opened successfully
 
@@ -275,7 +280,7 @@ void printPossibleMoves(Character *character, MovementAbility *movementAbility)
 
     {
 
-        if (outFile.is_open())
+        if (printToText && outFile.is_open())
         {
             // Write data to the file
             outFile << possibleTiles[i]->tileType / 100000;
@@ -286,7 +291,7 @@ void printPossibleMoves(Character *character, MovementAbility *movementAbility)
         }
         std::cout << possibleTiles[i]->tileType / 100000 << " ";
     }
-    if (outFile.is_open())
+    if (printToText && outFile.is_open())
         outFile.close();
 
     std::cout << "\n";
@@ -320,7 +325,7 @@ void handleCmd(std::queue<std::string> *cmd)
             {
                 if (possibleTiles[i]->tileType / 100000 == number)
                 {
-                     didMove = true;
+                    didMove = true;
 
                     Field::getInstance().getGreenCharacter()->move(possibleTiles[i], movementAbility);
                     std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
@@ -336,7 +341,7 @@ void handleCmd(std::queue<std::string> *cmd)
             {
                 if (possibleTiles[i]->tileType / 100000 == number)
                 {
-                     didMove = true;
+                    didMove = true;
 
                     Field::getInstance().getPurpleCharacter()->move(possibleTiles[i], movementAbility);
                     std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
@@ -352,7 +357,7 @@ void handleCmd(std::queue<std::string> *cmd)
             {
                 if (possibleTiles[i]->tileType / 100000 == number)
                 {
-                     didMove = true;
+                    didMove = true;
 
                     Field::getInstance().getOrangeCharacter()->move(possibleTiles[i], movementAbility);
                     std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
@@ -368,7 +373,7 @@ void handleCmd(std::queue<std::string> *cmd)
             {
                 if (possibleTiles[i]->tileType / 100000 == number)
                 {
-                     didMove = true;
+                    didMove = true;
 
                     std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
                     if (outFile.is_open())
@@ -378,7 +383,7 @@ void handleCmd(std::queue<std::string> *cmd)
             }
         }
 
-        if(!didMove)
+        if (!didMove)
         {
             std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
             if (outFile.is_open())

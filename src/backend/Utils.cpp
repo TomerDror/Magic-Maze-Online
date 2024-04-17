@@ -1,7 +1,7 @@
 #include "Utils.h"
- std::string Utils::getTileFeature(int tileValue)
+std::string Utils::getTileFeature(int tileValue)
 {
-    int feature = extractBits(tileValue%100000, Constants::tileTypeFeatureStart, Constants::tileTypeFeatureEnd);
+    int feature = extractBits(tileValue % 100000, Constants::tileTypeFeatureStart, Constants::tileTypeFeatureEnd);
     switch (feature)
     {
     case 0:
@@ -36,9 +36,9 @@
         break;
     }
 }
- std::string Utils::getTileColor(int tileValue)
+std::string Utils::getTileColor(int tileValue)
 {
-    int color = extractBits(tileValue%100000, Constants::tileTypeColorStart, Constants::tileTypeColorEnd);
+    int color = extractBits(tileValue % 100000, Constants::tileTypeColorStart, Constants::tileTypeColorEnd);
     if (color == 0)
     {
         return "green";
@@ -58,11 +58,11 @@
     return "no-color";
 }
 
- int Utils::getDirectionBitwise(int tileValue)
+int Utils::getDirectionBitwise(int tileValue)
 {
-    return extractBits(tileValue%100000, Constants::tileTypeDirectionStart, Constants::tileTypeDirectionEnd);
+    return extractBits(tileValue % 100000, Constants::tileTypeDirectionStart, Constants::tileTypeDirectionEnd);
 }
- std::string Utils::getDirection(int tileValue)
+std::string Utils::getDirection(int tileValue)
 {
     int bitwiseDirection = Utils::getDirectionBitwise(tileValue);
     switch (bitwiseDirection)
@@ -93,33 +93,84 @@
     }
 }
 
- bool Utils::tileBlockedMoveUp(int tileValue)
+void Utils::setDiraction(int *tileValue, int diractionBitwise)
 {
-    return !Utils::extractBits(tileValue%100000, Constants::tileTypeBlockedMoveUp, Constants::tileTypeBlockedMoveUp);
+    int temp = *tileValue / 100000;
+    *tileValue = temp + Utils::setBits(*tileValue % 100000, diractionBitwise, Constants::tileTypeDirectionStart, Constants::tileTypeDirectionEnd);
 }
 
- bool Utils::tileBlockedMoveDown(int tileValue)
+void Utils::rotateDiractionLeft(int *tileValue)
 {
-    return !Utils::extractBits(tileValue%100000, Constants::tileTypeBlockedMoveDown, Constants::tileTypeBlockedMoveDown);
+    int bitwise = Utils::getDirectionBitwise(*tileValue);
+    int right = bitwise % 2;
+    bitwise = Utils::setBits(bitwise, (bitwise / 4) % 2, 1, 1); // set right from down
+    bitwise = Utils::setBits(bitwise, (bitwise / 2) % 2, 3, 3); // set down from left
+    bitwise = Utils::setBits(bitwise, (bitwise / 8) % 2, 2, 2); // set left from up
+    bitwise = Utils::setBits(bitwise, right, 4, 4);     // set up from right
+    Utils::setDiraction(tileValue,bitwise);
+
+
+    int canMoveRight = Utils::tileBlockedMoveRight(*tileValue);
+    Utils::setTileBlockedMoveRight(tileValue,Utils::tileBlockedMoveDown);
+    Utils::setTileBlockedMoveDown(tileValue,Utils::tileBlockedMoveLeft);
+    Utils::setTileBlockedMoveLeft(tileValue,Utils::tileBlockedMoveUp);
+    Utils::setTileBlockedMoveUp(tileValue,canMoveRight);
+
 }
 
- bool Utils::tileBlockedMoveLeft(int tileValue)
+void Utils::setTileBlockedMoveUp(int *tileValue, bool blockedUp)
 {
-    return !Utils::extractBits(tileValue%100000, Constants::tileTypeBlockedMoveLeft, Constants::tileTypeBlockedMoveLeft);
+    int temp = *tileValue / 100000;
+    *tileValue = temp + Utils::setBits(*tileValue % 100000, blockedUp, Constants::tileTypeBlockedMoveUp, Constants::tileTypeBlockedMoveUp);
+}
+bool Utils::tileBlockedMoveUp(int tileValue)
+{
+    return !Utils::extractBits(tileValue % 100000, Constants::tileTypeBlockedMoveUp, Constants::tileTypeBlockedMoveUp);
 }
 
- bool Utils::tileBlockedMoveRight(int tileValue)
+void Utils::setTileBlockedMoveDown(int *tileValue, bool blockedDown)
 {
-    return !Utils::extractBits(tileValue%100000, Constants::tileTypeBlockedMoveRight, Constants::tileTypeBlockedMoveRight);
+    int temp = *tileValue / 100000;
+    *tileValue = temp + Utils::setBits(*tileValue % 100000, blockedDown, Constants::tileTypeBlockedMoveDown, Constants::tileTypeBlockedMoveDown);
+}
+bool Utils::tileBlockedMoveDown(int tileValue)
+{
+    return !Utils::extractBits(tileValue % 100000, Constants::tileTypeBlockedMoveDown, Constants::tileTypeBlockedMoveDown);
 }
 
- int Utils::extractBits(int num, int start, int end)
+void Utils::setTileBlockedMoveLeft(int *tileValue, bool blockedLeft)
+{
+    int temp = *tileValue / 100000;
+    *tileValue = temp + Utils::setBits(*tileValue % 100000, blockedLeft, Constants::tileTypeBlockedMoveLeft, Constants::tileTypeBlockedMoveLeft);
+}
+bool Utils::tileBlockedMoveLeft(int tileValue)
+{
+    return !Utils::extractBits(tileValue % 100000, Constants::tileTypeBlockedMoveLeft, Constants::tileTypeBlockedMoveLeft);
+}
+
+void Utils::setTileBlockedMoveRight(int *tileValue, bool blockedRight)
+{
+    int temp = *tileValue / 100000;
+    *tileValue = temp + Utils::setBits(*tileValue % 100000, blockedRight, Constants::tileTypeBlockedMoveRight, Constants::tileTypeBlockedMoveRight);
+}
+
+bool Utils::tileBlockedMoveRight(int tileValue)
+{
+    return !Utils::extractBits(tileValue % 100000, Constants::tileTypeBlockedMoveRight, Constants::tileTypeBlockedMoveRight);
+}
+
+int Utils::extractBits(int num, int start, int end)
 {
     // start -=1;
     int mask = ((1 << (end - start + 1)) - 1) << (start - 1);
-return (num & mask) >> (start - 1);
+    return (num & mask) >> (start - 1);
 
     // int mask = (1 << (end - start + 1)) - 1;
     // mask <<= start;
     // return (num & mask) >> start;
+}
+int Utils::setBits(int num, int value, int start, int end)
+{
+    return num + value + start + end;
+    // Todo
 }
