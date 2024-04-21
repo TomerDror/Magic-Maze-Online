@@ -18,14 +18,11 @@ public:
 
     Tile *tile;
     Tile *entrance;
-    
-    FieldPiece *getLeftPiece();
-    FieldPiece *getRightPiece();
-    FieldPiece *getUpPiece();
-    FieldPiece *getDownPiece();
+
+ 
     FieldPiece(PreFieldPiece *preFieldPiece);
     FieldPiece(Field *field, PreFieldPiece *preFieldPiece);
-    private:
+
     FieldPiece *leftPiece;
     FieldPiece *rightPiece;
     FieldPiece *upPiece;

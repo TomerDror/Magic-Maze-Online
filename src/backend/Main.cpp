@@ -104,60 +104,69 @@ void ClientMain()
 
         // std::cout << "Enter a command: ";
         // std::getline(std::cin, cmdStr);
-        std::ifstream MyReadFile("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt");
+        if (printToText)
+        {
+            std::ifstream MyReadFile("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt");
 
-        if (printToText && MyReadFile.is_open())
-        {                                // Check if file is open
-            getline(MyReadFile, cmdStr); // Read a line from the file into cmdStr
-            if (cmdStr.empty())
-            {
-                MyReadFile.close(); // Close the file
-            }
-            else
-            {
-
-                std::cout << cmdStr;
-                MyReadFile.close(); // Close the file
-
-                std::ofstream file("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt", std::ofstream::out | std::ofstream::trunc);
-
-                if (printToText&&file.is_open())
+            if (MyReadFile.is_open())
+            {                                // Check if file is open
+                getline(MyReadFile, cmdStr); // Read a line from the file into cmdStr
+                if (cmdStr.empty())
                 {
-                    file.close();
-                    //     // std::cout << "File contents deleted successfully." << std::endl;
+                    MyReadFile.close(); // Close the file
                 }
-                // else
-                // {
-                //     std::cerr << "Unable to open file!";
-                //     return;
-                // }
+                else
+                {
+
+                    std::cout << cmdStr;
+                    MyReadFile.close(); // Close the file
+
+                    std::ofstream file("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt", std::ofstream::out | std::ofstream::trunc);
+
+                    if (printToText && file.is_open())
+                    {
+                        file.close();
+                        //     // std::cout << "File contents deleted successfully." << std::endl;
+                    }
+                    // else
+                    // {
+                    //     std::cerr << "Unable to open file!";
+                    //     return;
+                    // }
+                }
             }
         }
         else
         {
             std::cout << "Enter a command: ";
-            std::getline(std::cin, cmdStr); 
+            std::getline(std::cin, cmdStr);
         }
 
         std::replace(cmdStr.begin(), cmdStr.end(), ' ', '$');
         std::queue<std::string> cmd = splitString(cmdStr.c_str());
-        if (cmd.front() == "move")
-        {
-            // std::cout << "moving";
-            cmdStr.append(movementAbilityToCmdStr(firstPlayer.movementAbility));
-        }
-
-        if (cmd.front() != "get" && cmd.front() != "getCharacter" && send(clientSocket, cmdStr.c_str(), cmdStr.length(), 0) == SOCKET_ERROR)
-        {
-            std::cerr << "Error sending message to server: " << WSAGetLastError() << std::endl;
-            break;
-        }
-
-        if (cmd.front() == "quit")
-        {
-            break;
-        }
+        bool sendToOthers = false;
         if (cmd.front() == "getCharacter")
+        {
+            std::cout << "klhsd";
+            cmd.pop();
+            if (cmd.front() == "green")
+            {
+                printPossibleMoves(Field::getInstance().getGreenCharacter(), firstPlayer.movementAbility);
+            }
+            if (cmd.front() == "purple")
+            {
+                printPossibleMoves(Field::getInstance().getPurpleCharacter(), firstPlayer.movementAbility);
+            }
+            if (cmd.front() == "orange")
+            {
+                printPossibleMoves(Field::getInstance().getOrangeCharacter(), firstPlayer.movementAbility);
+            }
+            if (cmd.front() == "yellow")
+            {
+                printPossibleMoves(Field::getInstance().getYellowCharacter(), firstPlayer.movementAbility);
+            }
+        }
+        else if (cmd.front() == "get")
         {
             cmd.pop();
             if (std::stoi(cmd.front()) == Field::getInstance().getGreenCharacter()->tileOn->tileType / 100000)
@@ -187,44 +196,42 @@ void ClientMain()
             }
             std::cout << "\n";
         }
-        if (cmd.front() == "get")
+
+        else if (cmd.front() == "quit")
         {
-            cmd.pop();
-            if (cmd.front() == "green")
-            {
-                printPossibleMoves(Field::getInstance().getGreenCharacter(), firstPlayer.movementAbility);
-            }
-            if (cmd.front() == "purple")
-            {
-                printPossibleMoves(Field::getInstance().getPurpleCharacter(), firstPlayer.movementAbility);
-            }
-            if (cmd.front() == "orange")
-            {
-                printPossibleMoves(Field::getInstance().getOrangeCharacter(), firstPlayer.movementAbility);
-            }
-            if (cmd.front() == "yellow")
-            {
-                printPossibleMoves(Field::getInstance().getYellowCharacter(), firstPlayer.movementAbility);
-            }
+            break;
         }
-        // std::this_thread::sleep_for(std::chrono::milliseconds(2000));  // Sleep for 100 milliseconds
+        else if (cmd.front() == "move")
+        {
+            // std::cout << "moving";
+            cmdStr.append(movementAbilityToCmdStr(firstPlayer.movementAbility));
+            sendToOthers = true;
+        }
+
+        if (sendToOthers && send(clientSocket, cmdStr.c_str(), cmdStr.length(), 0) == SOCKET_ERROR)
+        {
+            std::cerr << "Error sending message to server: " << WSAGetLastError() << std::endl;
+            break;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000)); // Sleep for 100 milliseconds
+        // Close the socket and join the server thread
     }
+        closesocket(clientSocket);
+        serverThread.join();
 
-    // Close the socket and join the server thread
-    closesocket(clientSocket);
-    serverThread.join();
-
-    WSACleanup();
+        WSACleanup();
 }
 
 int main()
 {
-    int a = 1206240;
-    Utils::rotateDiractionLeft(&a);
-    std::cout<<a;
+    // int a = 1206240;
+    // Utils::rotateDiractionLeft(&a);
 
-    // std::thread clientThread(ClientMain);
-    // clientThread.join();
+    // std::cout<<"\n the value is: "<< a;
+
+    std::thread clientThread(ClientMain);
+    clientThread.join();
 
     return 0;
 }
@@ -269,6 +276,7 @@ void printPossibleMoves(MovementAbility *movementAbility)
 
 void printPossibleMoves(Character *character, MovementAbility *movementAbility)
 {
+    std::cout << "adsf";
     std::cout << "possible " << (character->name) << " tiles ";
     std::vector<Tile *> possibleTiles = character->getPlausibleTargetTiles(movementAbility);
     std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");

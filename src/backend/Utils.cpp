@@ -96,24 +96,29 @@ std::string Utils::getDirection(int tileValue)
 void Utils::setDiraction(int *tileValue, int diractionBitwise)
 {
     int temp = *tileValue / 100000;
-    *tileValue = temp + Utils::setBits(*tileValue % 100000, diractionBitwise, Constants::tileTypeDirectionStart, Constants::tileTypeDirectionEnd);
+    *tileValue = temp*100000 + Utils::setBits(*tileValue % 100000, diractionBitwise, Constants::tileTypeDirectionStart, Constants::tileTypeDirectionEnd);
+}
+void Utils::setTileFeature(int *tileValue, int feature)
+{
+    int temp = *tileValue / 100000;
+    *tileValue = temp*100000 + Utils::setBits(*tileValue % 100000, feature, Constants::tileTypeFeatureStart, Constants::tileTypeFeatureEnd);
 }
 
 void Utils::rotateDiractionLeft(int *tileValue)
 {
     int bitwise = Utils::getDirectionBitwise(*tileValue);
     int right = bitwise % 2;
+
     bitwise = Utils::setBits(bitwise, (bitwise / 4) % 2, 1, 1); // set right from down
     bitwise = Utils::setBits(bitwise, (bitwise / 2) % 2, 3, 3); // set down from left
     bitwise = Utils::setBits(bitwise, (bitwise / 8) % 2, 2, 2); // set left from up
     bitwise = Utils::setBits(bitwise, right, 4, 4);     // set up from right
     Utils::setDiraction(tileValue,bitwise);
 
-
     int canMoveRight = Utils::tileBlockedMoveRight(*tileValue);
-    Utils::setTileBlockedMoveRight(tileValue,Utils::tileBlockedMoveDown);
-    Utils::setTileBlockedMoveDown(tileValue,Utils::tileBlockedMoveLeft);
-    Utils::setTileBlockedMoveLeft(tileValue,Utils::tileBlockedMoveUp);
+    Utils::setTileBlockedMoveRight(tileValue,Utils::tileBlockedMoveDown(*tileValue));
+    Utils::setTileBlockedMoveDown(tileValue,Utils::tileBlockedMoveLeft(*tileValue));
+    Utils::setTileBlockedMoveLeft(tileValue,Utils::tileBlockedMoveUp(*tileValue));
     Utils::setTileBlockedMoveUp(tileValue,canMoveRight);
 
 }
@@ -121,7 +126,7 @@ void Utils::rotateDiractionLeft(int *tileValue)
 void Utils::setTileBlockedMoveUp(int *tileValue, bool blockedUp)
 {
     int temp = *tileValue / 100000;
-    *tileValue = temp + Utils::setBits(*tileValue % 100000, blockedUp, Constants::tileTypeBlockedMoveUp, Constants::tileTypeBlockedMoveUp);
+    *tileValue = temp*100000 + Utils::setBits(*tileValue % 100000, blockedUp, Constants::tileTypeBlockedMoveUp, Constants::tileTypeBlockedMoveUp);
 }
 bool Utils::tileBlockedMoveUp(int tileValue)
 {
@@ -131,7 +136,7 @@ bool Utils::tileBlockedMoveUp(int tileValue)
 void Utils::setTileBlockedMoveDown(int *tileValue, bool blockedDown)
 {
     int temp = *tileValue / 100000;
-    *tileValue = temp + Utils::setBits(*tileValue % 100000, blockedDown, Constants::tileTypeBlockedMoveDown, Constants::tileTypeBlockedMoveDown);
+    *tileValue = temp*100000 + Utils::setBits(*tileValue % 100000, blockedDown, Constants::tileTypeBlockedMoveDown, Constants::tileTypeBlockedMoveDown);
 }
 bool Utils::tileBlockedMoveDown(int tileValue)
 {
@@ -141,7 +146,7 @@ bool Utils::tileBlockedMoveDown(int tileValue)
 void Utils::setTileBlockedMoveLeft(int *tileValue, bool blockedLeft)
 {
     int temp = *tileValue / 100000;
-    *tileValue = temp + Utils::setBits(*tileValue % 100000, blockedLeft, Constants::tileTypeBlockedMoveLeft, Constants::tileTypeBlockedMoveLeft);
+    *tileValue = temp*100000 + Utils::setBits(*tileValue % 100000, blockedLeft, Constants::tileTypeBlockedMoveLeft, Constants::tileTypeBlockedMoveLeft);
 }
 bool Utils::tileBlockedMoveLeft(int tileValue)
 {
@@ -151,12 +156,27 @@ bool Utils::tileBlockedMoveLeft(int tileValue)
 void Utils::setTileBlockedMoveRight(int *tileValue, bool blockedRight)
 {
     int temp = *tileValue / 100000;
-    *tileValue = temp + Utils::setBits(*tileValue % 100000, blockedRight, Constants::tileTypeBlockedMoveRight, Constants::tileTypeBlockedMoveRight);
+    *tileValue = temp*100000 + Utils::setBits(*tileValue % 100000, blockedRight, Constants::tileTypeBlockedMoveRight, Constants::tileTypeBlockedMoveRight);
 }
 
 bool Utils::tileBlockedMoveRight(int tileValue)
 {
     return !Utils::extractBits(tileValue % 100000, Constants::tileTypeBlockedMoveRight, Constants::tileTypeBlockedMoveRight);
+}
+
+int Utils::setBits(int num, int value, int start, int end)
+{
+    // Create a mask to set the specified bits to 1
+    int mask = ((1 << (end - start + 1)) - 1) << (start - 1);
+
+    // Clear the bits in num that we're going to set
+    num &= ~mask;
+
+    // Shift and mask the value to fit in the specified range
+    value = (value << (start - 1)) & mask;
+
+    // Set the bits in num to the masked value
+    return num | value;
 }
 
 int Utils::extractBits(int num, int start, int end)
@@ -165,12 +185,5 @@ int Utils::extractBits(int num, int start, int end)
     int mask = ((1 << (end - start + 1)) - 1) << (start - 1);
     return (num & mask) >> (start - 1);
 
-    // int mask = (1 << (end - start + 1)) - 1;
-    // mask <<= start;
-    // return (num & mask) >> start;
-}
-int Utils::setBits(int num, int value, int start, int end)
-{
-    return num + value + start + end;
-    // Todo
+
 }

@@ -9,6 +9,7 @@ class PreFieldPiece;
 #include "PreFieldPiece.h"
 #include "Character.h"
 #include "Tile.h"
+#include <queue>
 
 class Field
 {
@@ -24,6 +25,7 @@ public:
     std::vector<Tile*> purplePortals; 
     std::vector<Tile*> yellowPortals; 
     std::vector<Tile*> orangePortals; 
+    std::queue<PreFieldPiece*> futureTiles;
 
 private:
     static Field *instance;

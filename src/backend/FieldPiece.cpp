@@ -172,28 +172,3 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
         }
     }
 }
-
-FieldPiece *FieldPiece::getLeftPiece()
-{
-    if (!this->leftPiece)
-        throw std::invalid_argument("nullFieldPiece");
-    return this->leftPiece;
-}
-FieldPiece *FieldPiece::getRightPiece()
-{
-    if (!this->rightPiece)
-        throw std::invalid_argument("nullFieldPiece");
-    return this->rightPiece;
-}
-FieldPiece *FieldPiece::getUpPiece()
-{
-    if (!this->upPiece)
-        throw std::invalid_argument("nullFieldPiece");
-    return this->upPiece;
-}
-FieldPiece *FieldPiece::getDownPiece()
-{
-    if (!this->downPiece)
-        throw std::invalid_argument("nullFieldPiece");
-    return this->downPiece;
-}
