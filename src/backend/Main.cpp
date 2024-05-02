@@ -20,6 +20,8 @@ std::string movementAbilityToCmdStr(MovementAbility *movementAbility);
 std::queue<std::string> splitString(const char input[]);
 MovementAbility *queueToMovementAbility(std::queue<std::string> *cmd, MovementAbility *movementAbility);
 void handleCmd(std::queue<std::string> *cmd);
+bool canOpenFieldPiece(Character *character);
+void openFieldPiece(Character *character);
 
 const char *SERVER_IP = "127.0.0.1"; // Change this to the server's IP address
 const int SERVER_PORT = 27015;
@@ -147,7 +149,6 @@ void ClientMain()
         bool sendToOthers = false;
         if (cmd.front() == "getCharacter")
         {
-            std::cout << "klhsd";
             cmd.pop();
             if (cmd.front() == "green")
             {
@@ -201,7 +202,13 @@ void ClientMain()
         {
             break;
         }
-        else if (cmd.front() == "move")
+        else if (cmd.front() == "start")
+        {
+
+            // cmdStr.append("");
+            sendToOthers = true;
+        }
+        else if (cmd.front() == "move" || cmd.front() == "open")
         {
             // std::cout << "moving";
             cmdStr.append(movementAbilityToCmdStr(firstPlayer.movementAbility));
@@ -214,21 +221,17 @@ void ClientMain()
             break;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000)); // Sleep for 100 milliseconds
+        // std::this_thread::sleep_for(std::chrono::milliseconds(2000)); // Sleep for 100 milliseconds
         // Close the socket and join the server thread
     }
-        closesocket(clientSocket);
-        serverThread.join();
+    closesocket(clientSocket);
+    serverThread.join();
 
-        WSACleanup();
+    WSACleanup();
 }
 
 int main()
 {
-    // int a = 1206240;
-    // Utils::rotateDiractionLeft(&a);
-
-    // std::cout<<"\n the value is: "<< a;
 
     std::thread clientThread(ClientMain);
     clientThread.join();
@@ -276,7 +279,6 @@ void printPossibleMoves(MovementAbility *movementAbility)
 
 void printPossibleMoves(Character *character, MovementAbility *movementAbility)
 {
-    std::cout << "adsf";
     std::cout << "possible " << (character->name) << " tiles ";
     std::vector<Tile *> possibleTiles = character->getPlausibleTargetTiles(movementAbility);
     std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
@@ -311,9 +313,33 @@ void handleCmd(std::queue<std::string> *cmd)
     std::string color;
     int number = 0;
     MovementAbility *movementAbility = new MovementAbility();
-    if (cmd->front() == "stop")
+    if (cmd->front() == "quit")
     {
         exit(0);
+    }
+    if (cmd->front() == "open")
+        color = cmd->front();
+    cmd->pop();
+    Character *character;
+    if (color == "green")
+    {
+        character = Field::getInstance().getGreenCharacter();
+    }
+    if (color == "purple")
+    {
+        character = Field::getInstance().getPurpleCharacter();
+    }
+    if (color == "orange")
+    {
+        character = Field::getInstance().getOrangeCharacter();
+    }
+    if (color == "yello")
+    {
+        character = Field::getInstance().getYellowCharacter();
+    }
+    if (canOpenFieldPiece(character))
+    {
+        openFieldPiece(character);
     }
     if (cmd->front() == "move")
     {
@@ -331,8 +357,10 @@ void handleCmd(std::queue<std::string> *cmd)
             std::vector<Tile *> possibleTiles = Field::getInstance().getGreenCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
+
                 if (possibleTiles[i]->tileType / 100000 == number)
                 {
+                    std::cout << " value is is: " << possibleTiles[i]->tileType / 100000;
                     didMove = true;
 
                     Field::getInstance().getGreenCharacter()->move(possibleTiles[i], movementAbility);
@@ -445,4 +473,30 @@ bool stringToBool(const std::string &str)
         // Handle error, throw exception, or return a default value
         throw std::invalid_argument("Invalid boolean string representation: " + str);
     }
+}
+bool canOpenFieldPiece(Character *character)
+{
+    bool canOpen = Utils::getTileFeature(character->tileOn->tileType) == "opening" && Utils::getTileColor(character->tileOn->tileType) == character->name;
+    if (Utils::getDirection(character->tileOn->tileType) == "up")
+    {
+        canOpen = canOpen && character->tileOn->tileAbove != nullptr;
+    }
+    if (Utils::getDirection(character->tileOn->tileType) == "down")
+    {
+        canOpen = canOpen && character->tileOn->tileBellow != nullptr;
+    }
+    if (Utils::getDirection(character->tileOn->tileType) == "right")
+    {
+        canOpen = canOpen && character->tileOn->tileToRight != nullptr;
+    }
+    if (Utils::getDirection(character->tileOn->tileType) == "left")
+    {
+        canOpen = canOpen && character->tileOn->tileToLeft != nullptr;
+    }
+    return canOpen;
+}
+
+void openFieldPiece(Character *character)
+{
+    std::cout << character;
 }

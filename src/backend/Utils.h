@@ -9,8 +9,8 @@ class Utils {
 public:
     static void setTileFeature(int *tileValue, int feature);
 
-    static void rotateDiractionLeft(int *tileValue);
-    static void setDiraction(int *tileValue, int diractionBitwise);
+    static void rotateDirectionLeft(int *tileValue);
+    static void setDirection(int *tileValue, int directionBitwise);
     static std::string getTileFeature(int tileValue);
     static std::string getTileColor(int tileValue);
     static int getDirectionBitwise(int tileValue);

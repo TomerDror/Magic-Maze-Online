@@ -52,7 +52,11 @@ Field &Field::getInstance()
         tiles[3][3] = 0;
 
         PreFieldPiece preFieldPiece(tiles, size);
+
         preFieldPiece.rotateLeft();
+        // preFieldPiece.rotateLeft();
+        // preFieldPiece.rotateLeft();
+        // preFieldPiece.rotateLeft();
 
         instance = new Field(&preFieldPiece);
     }
@@ -96,6 +100,7 @@ bool Field::isTileVacated(Tile *tile)
 
 Character *Field::getGreenCharacter()
 {
+
     return greenCharacter;
 }
 

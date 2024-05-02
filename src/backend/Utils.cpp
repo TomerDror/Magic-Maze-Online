@@ -93,10 +93,10 @@ std::string Utils::getDirection(int tileValue)
     }
 }
 
-void Utils::setDiraction(int *tileValue, int diractionBitwise)
+void Utils::setDirection(int *tileValue, int directionBitwise)
 {
     int temp = *tileValue / 100000;
-    *tileValue = temp*100000 + Utils::setBits(*tileValue % 100000, diractionBitwise, Constants::tileTypeDirectionStart, Constants::tileTypeDirectionEnd);
+    *tileValue = temp*100000 + Utils::setBits(*tileValue % 100000, directionBitwise, Constants::tileTypeDirectionStart, Constants::tileTypeDirectionEnd);
 }
 void Utils::setTileFeature(int *tileValue, int feature)
 {
@@ -104,7 +104,7 @@ void Utils::setTileFeature(int *tileValue, int feature)
     *tileValue = temp*100000 + Utils::setBits(*tileValue % 100000, feature, Constants::tileTypeFeatureStart, Constants::tileTypeFeatureEnd);
 }
 
-void Utils::rotateDiractionLeft(int *tileValue)
+void Utils::rotateDirectionLeft(int *tileValue)
 {
     int bitwise = Utils::getDirectionBitwise(*tileValue);
     int right = bitwise % 2;
@@ -113,7 +113,7 @@ void Utils::rotateDiractionLeft(int *tileValue)
     bitwise = Utils::setBits(bitwise, (bitwise / 2) % 2, 3, 3); // set down from left
     bitwise = Utils::setBits(bitwise, (bitwise / 8) % 2, 2, 2); // set left from up
     bitwise = Utils::setBits(bitwise, right, 4, 4);     // set up from right
-    Utils::setDiraction(tileValue,bitwise);
+    Utils::setDirection(tileValue,bitwise);
 
     int canMoveRight = Utils::tileBlockedMoveRight(*tileValue);
     Utils::setTileBlockedMoveRight(tileValue,Utils::tileBlockedMoveDown(*tileValue));

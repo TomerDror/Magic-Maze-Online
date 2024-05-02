@@ -42,7 +42,6 @@ std::vector<Tile *> Character::getPlausibleTargetTiles(MovementAbility *playerMo
         if (tile != nullptr && playerMovementAbility->canUsePortals && Field::getInstance().isTileVacated(tile))
         {
             plausibleTargetTiles.push_back(tile);
-            std::cout << "ha";
         }
         //
     }
@@ -77,14 +76,14 @@ void Character::move(Tile *tile, MovementAbility *playerMovementAbility)
 }
 void Character::openFieldPiece(MovementAbility *playerMovementAbility)
 {
-    if (Utils::getTileFeature(this->tileOn->tileType) == "opening" && this->name == Utils::getTileColor(this->tileOn->tileType) && playerMovementAbility->canOpenFieldPiece && isFieldPieceAlreadyExist(Utils::getDirection(this->tileOn->tileType), this->tileOn->fieldPieceOn ))//this->tileOn->fieldPieceOn->upPiece) // add check that there isnt a fp in that diraction TODo
+    if (Utils::getTileFeature(this->tileOn->tileType) == "opening" && this->name == Utils::getTileColor(this->tileOn->tileType) && playerMovementAbility->canOpenFieldPiece && isFieldPieceAlreadyExist(Utils::getDirection(this->tileOn->tileType), this->tileOn->fieldPieceOn ))//this->tileOn->fieldPieceOn->upPiece) // add check that there isnt a fp in that direction TODo
     {
         if (!Field::getInstance().futureTiles.empty())
         {
             FieldPiece *newFieldPiece = new FieldPiece(Field::getInstance().futureTiles.front());
             Field::getInstance().futureTiles.pop();
-            std::string diraction = Utils::getDirection(this->tileOn->tileType);
-            if (diraction == "up ")
+            std::string direction = Utils::getDirection(this->tileOn->tileType);
+            if (direction == "up ")
             {
                 this->tileOn->fieldPieceOn->upPiece = newFieldPiece;
                 newFieldPiece->downPiece = this->tileOn->fieldPieceOn;
@@ -92,21 +91,21 @@ void Character::openFieldPiece(MovementAbility *playerMovementAbility)
                 this->tileOn->tileAbove = newFieldPiece->entrance;
                 newFieldPiece->entrance->tileBellow = this->tileOn;
             }
-            else if (diraction == "down ")
+            else if (direction == "down ")
             {
                 this->tileOn->fieldPieceOn->downPiece = newFieldPiece;
                 newFieldPiece->upPiece = this->tileOn->fieldPieceOn;
                 this->tileOn->tileBellow = newFieldPiece->entrance;
                 newFieldPiece->entrance->tileAbove = this->tileOn;
             }
-            else if (diraction == "right ")
+            else if (direction == "right ")
             {
                 this->tileOn->fieldPieceOn->rightPiece = newFieldPiece;
                 newFieldPiece->leftPiece = this->tileOn->fieldPieceOn;
                 this->tileOn->tileToRight = newFieldPiece->entrance;
                 newFieldPiece->entrance->tileToLeft = this->tileOn;
             }
-            else if (diraction == "left ")
+            else if (direction == "left ")
             {
                 this->tileOn->fieldPieceOn->leftPiece = newFieldPiece;
                 newFieldPiece->rightPiece = this->tileOn->fieldPieceOn;
@@ -115,7 +114,7 @@ void Character::openFieldPiece(MovementAbility *playerMovementAbility)
             }
             else
             {
-                std::cout << "invalid diraction";
+                std::cout << "invalid direction";
             }
             // connect fp
             // connect tiles
@@ -127,29 +126,29 @@ void Character::openFieldPiece(MovementAbility *playerMovementAbility)
         }
     }
 }
-bool Character::isFieldPieceAlreadyExist(std::string diraction, FieldPiece *fieldPiece){
-            if (diraction == "up ")
+bool Character::isFieldPieceAlreadyExist(std::string direction, FieldPiece *fieldPiece){
+            if (direction == "up ")
             {
                 return fieldPiece->upPiece !=nullptr;
                 
             }
-            else if (diraction == "down ")
+            else if (direction == "down ")
             {
                 return fieldPiece->downPiece !=nullptr;
                 
             }
-            else if (diraction == "right ")
+            else if (direction == "right ")
             {
                 return fieldPiece->rightPiece !=nullptr;
                 
             }
-            else if (diraction == "left ")
+            else if (direction == "left ")
             {
                 return fieldPiece->leftPiece !=nullptr;
                 
             }
            
-                std::cout << "invalid diraction";
+                std::cout << "invalid direction";
                 return false;
             
 }

@@ -123,7 +123,6 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
                 {
 
                     int direction = Utils::getDirectionBitwise(field[y][x]);
-                    // std::cout<<"diraciton"<<direction;
                     int escalatorX = x;
                     int escalatorY = y;
                     escalatorY -= ((direction >> 3) & 1) - ((direction >> 2) & 1);
