@@ -187,3 +187,11 @@ int Utils::extractBits(int num, int start, int end)
 
 
 }
+
+std::queue<int> Utils::createQueueFromVector(const std::vector<int>& vec) {
+    std::queue<int> q;
+    for (const auto& element : vec) {
+        q.push(element);
+    }
+    return q;
+}

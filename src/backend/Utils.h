@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <string>
+#include <queue>
 #include "Constants.h"
 #include <iostream>
 
@@ -25,6 +26,8 @@ public:
     void  static setTileBlockedMoveRight(int *tileValue, bool blockedRight);
     int static setBits(int num,int value, int start, int end);
     static int extractBits(int num, int start, int end);
+    static std::queue<int> createQueueFromVector(const std::vector<int>& vec);
+
 };
 
 #endif /* UTILS_H */

@@ -25,17 +25,19 @@ public:
     std::vector<Tile*> purplePortals; 
     std::vector<Tile*> yellowPortals; 
     std::vector<Tile*> orangePortals; 
-    std::queue<PreFieldPiece*> futureTiles;
+    std::queue<int> futureFieldPieces;
+    PreFieldPiece allFieldPieces[10];
+
 
 private:
+    Field(PreFieldPiece *fieldPiece);
+    Field(FieldPiece *fieldPiece);
     static Field *instance;
     FieldPiece *centerPiece;
     Character *greenCharacter;
     Character *purpleCharacter;
     Character *yellowCharacter;
     Character *orangeCharacter;
-    Field(PreFieldPiece *fieldPiece);
-    Field(FieldPiece *fieldPiece);
 };
 
 #endif

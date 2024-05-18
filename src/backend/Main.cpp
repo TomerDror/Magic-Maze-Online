@@ -27,7 +27,7 @@ const char *SERVER_IP = "127.0.0.1"; // Change this to the server's IP address
 const int SERVER_PORT = 27015;
 const int BUFFER_SIZE = 1024;
 Player firstPlayer(1, 0, 1, 1, 1, 1, 1);
-
+bool started = false;
 bool printToText = false;
 void HandleServerMessages(SOCKET serverSocket)
 {
@@ -147,7 +147,7 @@ void ClientMain()
         std::replace(cmdStr.begin(), cmdStr.end(), ' ', '$');
         std::queue<std::string> cmd = splitString(cmdStr.c_str());
         bool sendToOthers = false;
-        if (cmd.front() == "getCharacter")
+        if (started&&cmd.front() == "getCharacter")
         {
             cmd.pop();
             if (cmd.front() == "green")
@@ -167,7 +167,7 @@ void ClientMain()
                 printPossibleMoves(Field::getInstance().getYellowCharacter(), firstPlayer.movementAbility);
             }
         }
-        else if (cmd.front() == "get")
+        else if (started &&cmd.front() == "get")
         {
             cmd.pop();
             if (std::stoi(cmd.front()) == Field::getInstance().getGreenCharacter()->tileOn->tileType / 100000)
@@ -202,13 +202,21 @@ void ClientMain()
         {
             break;
         }
-        else if (cmd.front() == "start")
+        else if (!started&&cmd.front() == "start")
         {
-
+            cmd.pop();
+            std::vector <int> myLinkedList ;
+            for(int i =0;i<stoi(cmd.front());i++){
+                cmd.pop();
+                myLinkedList.push_back(std::stoi(cmd.front()));
             // cmdStr.append("");
+            }
+
+            Field::getInstance().futureFieldPieces = Utils::createQueueFromVector(myLinkedList);
+            started = true;
             sendToOthers = true;
         }
-        else if (cmd.front() == "move" || cmd.front() == "open")
+        else if (started && (cmd.front() == "move" || cmd.front() == "open"))
         {
             // std::cout << "moving";
             cmdStr.append(movementAbilityToCmdStr(firstPlayer.movementAbility));
@@ -498,5 +506,6 @@ bool canOpenFieldPiece(Character *character)
 
 void openFieldPiece(Character *character)
 {
-    std::cout << character;
+    character->openFieldPiece();
+    // FieldPiece newFieldPiece = FieldPiece(Field::getInstance().allFieldPieces[Field::getInstance().futureFieldPieces]);
 }

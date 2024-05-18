@@ -11,6 +11,7 @@ class Field;
 #include <unordered_map> 
 #include <stdexcept>
 #include "Field.h"
+#include <vector>
 
 class FieldPiece
 {
@@ -18,6 +19,7 @@ public:
 
     Tile *tile;
     Tile *entrance;
+    std::vector<Tile*> exits;
 
  
     FieldPiece(PreFieldPiece *preFieldPiece);
@@ -27,6 +29,9 @@ public:
     FieldPiece *rightPiece;
     FieldPiece *upPiece;
     FieldPiece *downPiece;
+private:
+    void locateTile(std::unordered_map<int, Tile *> *umap_ptr, int x, int y, Tile *tileInDirection, int **field);
+
 
 
 };

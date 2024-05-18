@@ -74,39 +74,58 @@ void Character::move(Tile *tile, MovementAbility *playerMovementAbility)
         this->tileOn = tile;
     }
 }
-void Character::openFieldPiece(MovementAbility *playerMovementAbility)
+void Character::openFieldPiece()
 {
-    if (Utils::getTileFeature(this->tileOn->tileType) == "opening" && this->name == Utils::getTileColor(this->tileOn->tileType) && playerMovementAbility->canOpenFieldPiece && isFieldPieceAlreadyExist(Utils::getDirection(this->tileOn->tileType), this->tileOn->fieldPieceOn ))//this->tileOn->fieldPieceOn->upPiece) // add check that there isnt a fp in that direction TODo
+    if (Utils::getTileFeature(this->tileOn->tileType) == "opening" && this->name == Utils::getTileColor(this->tileOn->tileType)  && isFieldPieceAlreadyExist(Utils::getDirection(this->tileOn->tileType), this->tileOn->fieldPieceOn ))//this->tileOn->fieldPieceOn->upPiece) // add check that there isnt a fp in that direction TODo
     {
-        if (!Field::getInstance().futureTiles.empty())
+        if (!Field::getInstance().futureFieldPieces.empty())
         {
-            FieldPiece *newFieldPiece = new FieldPiece(Field::getInstance().futureTiles.front());
-            Field::getInstance().futureTiles.pop();
+            FieldPiece *newFieldPiece;
             std::string direction = Utils::getDirection(this->tileOn->tileType);
-            if (direction == "up ")
+            if (direction == "up")
             {
+                PreFieldPiece preFieldPiece = Field::getInstance().allFieldPieces[Field::getInstance().futureFieldPieces.front()];
+                newFieldPiece = new FieldPiece(&preFieldPiece);
+                Field::getInstance().futureFieldPieces.pop();
+                
                 this->tileOn->fieldPieceOn->upPiece = newFieldPiece;
                 newFieldPiece->downPiece = this->tileOn->fieldPieceOn;
 
                 this->tileOn->tileAbove = newFieldPiece->entrance;
                 newFieldPiece->entrance->tileBellow = this->tileOn;
             }
-            else if (direction == "down ")
+            else if (direction == "down")
             {
+                PreFieldPiece preFieldPiece = Field::getInstance().allFieldPieces[Field::getInstance().futureFieldPieces.front()];
+                preFieldPiece.rotateLeft();
+                preFieldPiece.rotateLeft();
+                newFieldPiece = new FieldPiece(&preFieldPiece);
+                Field::getInstance().futureFieldPieces.pop();
+
                 this->tileOn->fieldPieceOn->downPiece = newFieldPiece;
                 newFieldPiece->upPiece = this->tileOn->fieldPieceOn;
                 this->tileOn->tileBellow = newFieldPiece->entrance;
                 newFieldPiece->entrance->tileAbove = this->tileOn;
             }
-            else if (direction == "right ")
+            else if (direction == "right")
             {
+                PreFieldPiece preFieldPiece = Field::getInstance().allFieldPieces[Field::getInstance().futureFieldPieces.front()];
+                preFieldPiece.rotateRight();
+                newFieldPiece = new FieldPiece(&preFieldPiece);
+                Field::getInstance().futureFieldPieces.pop();
+
                 this->tileOn->fieldPieceOn->rightPiece = newFieldPiece;
                 newFieldPiece->leftPiece = this->tileOn->fieldPieceOn;
                 this->tileOn->tileToRight = newFieldPiece->entrance;
                 newFieldPiece->entrance->tileToLeft = this->tileOn;
             }
-            else if (direction == "left ")
+            else if (direction == "left")
             {
+                PreFieldPiece preFieldPiece = Field::getInstance().allFieldPieces[Field::getInstance().futureFieldPieces.front()];
+                preFieldPiece.rotateLeft();
+                newFieldPiece = new FieldPiece(&preFieldPiece);
+                Field::getInstance().futureFieldPieces.pop();
+                
                 this->tileOn->fieldPieceOn->leftPiece = newFieldPiece;
                 newFieldPiece->rightPiece = this->tileOn->fieldPieceOn;
                 this->tileOn->tileToLeft = newFieldPiece->entrance;
@@ -127,22 +146,22 @@ void Character::openFieldPiece(MovementAbility *playerMovementAbility)
     }
 }
 bool Character::isFieldPieceAlreadyExist(std::string direction, FieldPiece *fieldPiece){
-            if (direction == "up ")
+            if (direction == "up")
             {
                 return fieldPiece->upPiece !=nullptr;
                 
             }
-            else if (direction == "down ")
+            else if (direction == "down")
             {
                 return fieldPiece->downPiece !=nullptr;
                 
             }
-            else if (direction == "right ")
+            else if (direction == "right")
             {
                 return fieldPiece->rightPiece !=nullptr;
                 
             }
-            else if (direction == "left ")
+            else if (direction == "left")
             {
                 return fieldPiece->leftPiece !=nullptr;
                 

@@ -17,7 +17,7 @@
             Character(std::string, FieldPiece *startingPieceField,Tile *startingTile);
             std::vector<Tile*> getPlausibleTargetTiles(MovementAbility *playerMovementAbility);
             void move(Tile* target,MovementAbility *playerMovementAbility);
-            void openFieldPiece(MovementAbility *playerMovementAbility);
+            void openFieldPiece();
             bool isFieldPieceAlreadyExist(std::string direction, FieldPiece *fieldPiece);
 
     };

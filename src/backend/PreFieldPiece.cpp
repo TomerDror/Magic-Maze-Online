@@ -1,5 +1,9 @@
 #include "PreFieldPiece.h"
 
+PreFieldPiece::PreFieldPiece(){
+    size =0;
+    std::cout<<"error! please contact Tomer";
+}
 PreFieldPiece::PreFieldPiece(int **tiles, int size)
 {
     this->size = size;
