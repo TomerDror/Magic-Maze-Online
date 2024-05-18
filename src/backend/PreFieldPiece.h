@@ -5,7 +5,6 @@
 class PreFieldPiece {
 private:
     int** tiles;
-    int size;
 
     int getTileFeature(int tileValue);
     int getTileColor(int tileValue);
@@ -16,6 +15,7 @@ private:
     bool canTileMoveRight(int tileValue);
 
 public:
+    int size;
     PreFieldPiece(int** tiles, int size);
     PreFieldPiece();
     void rotateLeft();

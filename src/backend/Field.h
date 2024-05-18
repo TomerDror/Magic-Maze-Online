@@ -27,11 +27,11 @@ public:
     std::vector<Tile*> orangePortals; 
     std::queue<int> futureFieldPieces;
     PreFieldPiece allFieldPieces[10];
+    Field(PreFieldPiece fieldPiece);
 
 
-private:
-    Field(PreFieldPiece *fieldPiece);
-    Field(FieldPiece *fieldPiece);
+// private:
+    // Field(FieldPiece *\fieldPiece);
     static Field *instance;
     FieldPiece *centerPiece;
     Character *greenCharacter;

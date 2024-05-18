@@ -2,10 +2,11 @@
 
 PreFieldPiece::PreFieldPiece(){
     size =0;
-    std::cout<<"error! please contact Tomer";
+    std::cout<<"error! please contact Tomer ";
 }
 PreFieldPiece::PreFieldPiece(int **tiles, int size)
 {
+    std::cout<<"Gibrish\n";
     this->size = size;
     this->tiles = new int *[size];
     for (int i = 0; i < size; i++)
@@ -16,6 +17,7 @@ PreFieldPiece::PreFieldPiece(int **tiles, int size)
             this->tiles[i][j] = tiles[i][j];
         }
     }
+    std::cout<<"gabrish\n";
 }
 
 void PreFieldPiece::rotateLeft()

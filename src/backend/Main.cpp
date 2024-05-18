@@ -143,11 +143,11 @@ void ClientMain()
             std::cout << "Enter a command: ";
             std::getline(std::cin, cmdStr);
         }
-
+        std::cout << cmdStr;
         std::replace(cmdStr.begin(), cmdStr.end(), ' ', '$');
         std::queue<std::string> cmd = splitString(cmdStr.c_str());
         bool sendToOthers = false;
-        if (started&&cmd.front() == "getCharacter")
+        if (started && cmd.front() == "getCharacter")
         {
             cmd.pop();
             if (cmd.front() == "green")
@@ -167,7 +167,7 @@ void ClientMain()
                 printPossibleMoves(Field::getInstance().getYellowCharacter(), firstPlayer.movementAbility);
             }
         }
-        else if (started &&cmd.front() == "get")
+        else if (started && cmd.front() == "get")
         {
             cmd.pop();
             if (std::stoi(cmd.front()) == Field::getInstance().getGreenCharacter()->tileOn->tileType / 100000)
@@ -202,18 +202,25 @@ void ClientMain()
         {
             break;
         }
-        else if (!started&&cmd.front() == "start")
+        else if (!started && cmd.front() == "start")
         {
-            cmd.pop();
-            std::vector <int> myLinkedList ;
-            for(int i =0;i<stoi(cmd.front());i++){
-                cmd.pop();
-                myLinkedList.push_back(std::stoi(cmd.front()));
-            // cmdStr.append("");
-            }
 
-            Field::getInstance().futureFieldPieces = Utils::createQueueFromVector(myLinkedList);
-            started = true;
+            // cmd.pop();
+            // std::vector<int> myLinkedList;
+
+            // if (!cmd.empty())
+            // {
+
+            //     for (int i = 0; i < stoi(cmd.front()); i++)
+            //     {
+            //         cmd.pop();
+            //         myLinkedList.push_back(std::stoi(cmd.front()));
+            //         // cmdStr.append("");
+            //     }
+            // }
+
+            // Field::getInstance().futureFieldPieces = Utils::createQueueFromVector(myLinkedList);
+            // started = true;
             sendToOthers = true;
         }
         else if (started && (cmd.front() == "move" || cmd.front() == "open"))
@@ -325,31 +332,54 @@ void handleCmd(std::queue<std::string> *cmd)
     {
         exit(0);
     }
-    if (cmd->front() == "open")
+    std::cout << "hey there " << cmd->front() << "\n";
+    if (cmd->front() == "start")
+    {
+        cmd->pop();
+        std::vector<int> myLinkedList;
+
+        if (!cmd->empty())
+        {
+
+            for (int i = 0; i < stoi(cmd->front()); i++)
+            {
+                cmd->pop();
+                myLinkedList.push_back(std::stoi(cmd->front()));
+                // cmdStr.append("");
+            }
+        }
+        std::cout<<"k";
+        Field::getInstance().futureFieldPieces = Utils::createQueueFromVector(myLinkedList);
+        // started = true;
+    }
+    if (started && cmd->front() == "open")
+    {
+        cmd->pop();
         color = cmd->front();
-    cmd->pop();
-    Character *character;
-    if (color == "green")
-    {
-        character = Field::getInstance().getGreenCharacter();
+        cmd->pop();
+        Character *character;
+        if (color == "green")
+        {
+            character = Field::getInstance().getGreenCharacter();
+        }
+        if (color == "purple")
+        {
+            character = Field::getInstance().getPurpleCharacter();
+        }
+        if (color == "orange")
+        {
+            character = Field::getInstance().getOrangeCharacter();
+        }
+        if (color == "yellow")
+        {
+            character = Field::getInstance().getYellowCharacter();
+        }
+        if (canOpenFieldPiece(character))
+        {
+            openFieldPiece(character);
+        }
     }
-    if (color == "purple")
-    {
-        character = Field::getInstance().getPurpleCharacter();
-    }
-    if (color == "orange")
-    {
-        character = Field::getInstance().getOrangeCharacter();
-    }
-    if (color == "yello")
-    {
-        character = Field::getInstance().getYellowCharacter();
-    }
-    if (canOpenFieldPiece(character))
-    {
-        openFieldPiece(character);
-    }
-    if (cmd->front() == "move")
+    if (started && cmd->front() == "move")
     {
         cmd->pop();
 

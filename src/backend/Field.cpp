@@ -4,6 +4,7 @@ Field *Field::instance = nullptr;
 
 Field &Field::getInstance()
 {
+    std::cout << "b";
     if (instance == nullptr)
     {
         int size = 4;
@@ -53,34 +54,28 @@ Field &Field::getInstance()
 
         PreFieldPiece preFieldPiece(tiles, size);
 
-        preFieldPiece.rotateLeft();
         // preFieldPiece.rotateLeft();
-        // preFieldPiece.rotateLeft();
-        // preFieldPiece.rotateLeft();
-
-        instance = new Field(&preFieldPiece);
+        std::cout << preFieldPiece.size;
+        instance = new Field(preFieldPiece);
+        std::cout << "nooo\n";
     }
     return *instance;
 }
 
-Field::Field(PreFieldPiece *fieldPiece)
+Field::Field(PreFieldPiece fieldPiece)
 {
-    centerPiece = new FieldPiece(this, fieldPiece);
+    std::cout<<"asf";
+    FieldPiece fp(this, &fieldPiece);
+    std::cout<<"asf";
+    centerPiece = &fp;
 
     this->greenCharacter = new Character("green", this->centerPiece, this->centerPiece->tile->tileToRight->tileBellow);
     this->purpleCharacter = new Character("purple", this->centerPiece, this->centerPiece->tile->tileToRight->tileToRight->tileBellow);
     this->yellowCharacter = new Character("yellow", this->centerPiece, this->centerPiece->tile->tileToRight->tileBellow->tileBellow);
     this->orangeCharacter = new Character("orange", this->centerPiece, this->centerPiece->tile->tileToRight->tileToRight->tileBellow->tileBellow);
+
 }
 
-Field::Field(FieldPiece *fieldPiece)
-{
-    this->centerPiece = fieldPiece;
-    this->greenCharacter = nullptr;
-    this->purpleCharacter = nullptr;
-    this->yellowCharacter = nullptr;
-    this->orangeCharacter = nullptr;
-}
 
 bool Field::isTileVacated(Tile *tile)
 {

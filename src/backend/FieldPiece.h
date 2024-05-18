@@ -30,7 +30,7 @@ public:
     FieldPiece *upPiece;
     FieldPiece *downPiece;
 private:
-    void locateTile(std::unordered_map<int, Tile *> *umap_ptr, int x, int y, Tile *tileInDirection, int **field);
+void locateTile(Tile **returnTile, Tile *currTile, int x, int y, int **field, std::unordered_map<int, Tile *> *umap_ptr);
 
 
 

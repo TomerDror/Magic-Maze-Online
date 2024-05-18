@@ -38,84 +38,13 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
                     currTile = umap[10 * y + x];
                 }
 
-                if (x < size - 1 && field[y][x + 1] != 0 && !Utils::tileBlockedMoveDown(currTile->tileType))
-                {
-                    Tile *rightTile;
+                this->locateTile(&(currTile->tileToRight), currTile,  x+1,  y, field, &umap);
+                this->locateTile(&(currTile->tileToLeft ), currTile,  x-1,  y, field, &umap);
+                this->locateTile(&(currTile->tileBellow ), currTile,  x,  y+1, field, &umap);
+                this->locateTile(&(currTile->tileAbove  ), currTile,  x,  y-1, field, &umap);
 
-                    if (umap.find(10 * y + x + 1) == umap.end())
-                    {
-                        // std::cout<<" ,cr right";
+               
 
-                        rightTile = new Tile(field[y][x + 1]);
-                        umap[10 * y + x + 1] = rightTile;
-                    }
-                    else
-                    {
-                        // std::cout<<" ,con right";
-                        rightTile = umap[10 * y + x + 1];
-                    }
-
-                    currTile->tileToRight = rightTile;
-                }
-
-                if (x >= 1 && field[y][x - 1] != 0 && !Utils::tileBlockedMoveUp(currTile->tileType))
-                {
-                    Tile *leftTile;
-
-                    if (umap.find(10 * y + x - 1) == umap.end())
-                    {
-                        // std::cout<<" ,cr left";
-                        leftTile = new Tile(field[y][x - 1]);
-                        umap[10 * y + x - 1] = leftTile;
-                    }
-                    else
-                    {
-                        // std::cout<<" ,con left";
-                        leftTile = umap[10 * y + x - 1];
-                    }
-
-                    currTile->tileToLeft = leftTile;
-                }
-
-                if (y < (size - 1) && field[y + 1][x] != 0 && !Utils::tileBlockedMoveRight(currTile->tileType))
-                {
-                    Tile *downTile;
-
-                    if (umap.find(10 * (y + 1) + x) == umap.end())
-                    {
-                        // std::cout<<" ,cr down";
-
-                        downTile = new Tile(field[y + 1][x]);
-                        umap[10 * (y + 1) + x] = downTile;
-                    }
-                    else
-                    {
-                        // std::cout<<" ,con down";
-                        downTile = umap[10 * (y + 1) + x];
-                    }
-
-                    currTile->tileBellow = downTile;
-                }
-                if (y >= 1 && field[y - 1][x] != 0 && !Utils::tileBlockedMoveLeft(currTile->tileType))
-                {
-                    Tile *upTile;
-
-                    if (umap.find(10 * (y - 1) + x) == umap.end())
-                    {
-                        // std::cout<<" ,cr up";
-
-                        upTile = new Tile(field[y - 1][x]);
-                        umap[10 * (y - 1) + x] = upTile;
-                    }
-                    else
-                    {
-                        // std::cout<<" ,con up";
-                        upTile = umap[10 * (y - 1) + x];
-                    }
-                    // this->locateTile(&umap,,x,y-1,upTile,field);
-
-                    currTile->tileAbove = upTile;
-                }
                 if (Utils::getTileFeature(field[y][x]) == "entrance")
                 {
                     this->entrance = currTile;
@@ -173,23 +102,28 @@ FieldPiece::FieldPiece(Field *playingField, PreFieldPiece *preFieldPiece)
         }
     }
 }
-void FieldPiece::locateTile(std::unordered_map<int, Tile *> *umap_ptr, int x, int y, Tile *tileInDirection, int **field)
+void FieldPiece::locateTile(Tile **returnTile, Tile *currTile, int x, int y, int **field, std::unordered_map<int, Tile *> *umap_ptr)
 {
-    if ((*umap_ptr).find(10 * (y ) + x) == (*umap_ptr).end())
+    if (x >= 1 && field[y][x - 1] != 0 && !Utils::tileBlockedMoveUp(currTile->tileType))
     {
-        // std::cout<<" ,cr up";
-
-        tileInDirection = new Tile(field[y][x]);
-        (*umap_ptr)[10 * (y ) + x] = tileInDirection;
-
-        if(Utils::getTileFeature(tileInDirection->tileType) == "exit")
+        Tile *tileInDirection;
+        if ((*umap_ptr).find(10 * (y) + x) == (*umap_ptr).end())
         {
-            this->exits.push_back(tileInDirection);
-        }    
-    }
-    else
-    {
-        // std::cout<<" ,con up";
-        tileInDirection = (*umap_ptr)[10 * (y ) + x];
+            // std::cout<<" ,cr up";
+
+            tileInDirection = new Tile(field[y][x]);
+            (*umap_ptr)[10 * (y) + x] = tileInDirection;
+
+            if (Utils::getTileFeature(tileInDirection->tileType) == "exit")
+            {
+                this->exits.push_back(tileInDirection);
+            }
+        }
+        else
+        {
+            // std::cout<<" ,con up";
+            tileInDirection = (*umap_ptr)[10 * (y) + x];
+        }
+        (*returnTile) = tileInDirection;
     }
 }
