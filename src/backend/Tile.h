@@ -8,24 +8,21 @@
 #include "FieldPiece.h"
 class Tile
 {
-    public:
-        bool isStandable;
-        Tile *escalatorTo;
-        Tile *tileAbove;
-        Tile *tileBellow;
-        Tile *tileToRight;
-        Tile *tileToLeft;
-        int tileType;
-        FieldPiece *fieldPieceOn;
-        Tile(int tileType);
+public:
+    bool isStandable;
+    Tile *escalatorTo;
+    Tile *tileAbove;
+    Tile *tileBellow;
+    Tile *tileToRight;
+    Tile *tileToLeft;
+    int tileType;
+    FieldPiece *fieldPieceOn;
+    Tile(FieldPiece *fieldPiece, int tileType);
 
-        std::vector<Tile *> getPlausibleTargetTiles(MovementAbility *movementAbility);
-        
+    std::vector<Tile *> getPlausibleTargetTiles(MovementAbility *movementAbility);
 
     int getTileFeature();
     int getTileColor();
-    
-    
 };
 
 #endif

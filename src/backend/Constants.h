@@ -10,10 +10,13 @@ public:
     static const int tileTypeColorEnd = 10;
     static const int tileTypeDirectionStart  = 11;
     static const int tileTypeDirectionEnd = 14;
+    static const int tileTypeEscalatorDirectionStart =15;
+    static const int tileTypeEscalatorDirectionEnd = 18;
     static const int tileTypeBlockedMoveUp = 1;
     static const int tileTypeBlockedMoveDown = 2;
     static const int tileTypeBlockedMoveLeft = 3;
     static const int tileTypeBlockedMoveRight =4;
+
 
 };
 

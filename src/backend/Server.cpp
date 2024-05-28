@@ -36,7 +36,7 @@
             if (!gameStarted && strcmp(buffer, "start") == 0) {
                 std::cout << "Start command received. Broadcasting start to all clients." << std::endl;
                 gameStarted = true;
-                BroadcastMessage("start$1", strlen("start$1"));
+                BroadcastMessage("start$2", strlen("start$2"));
             } else if (gameStarted) {
                 // Broadcast received message to all clients
                 BroadcastMessage(buffer, bytesReceived);

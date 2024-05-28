@@ -1,23 +1,26 @@
 #include "PreFieldPiece.h"
 
-PreFieldPiece::PreFieldPiece(){
-    size =0;
-    std::cout<<"error! please contact Tomer ";
-}
+// PreFieldPiece::PreFieldPiece(){
+//     size =0;
+//     std::cout<<"error! please contact Tomer ";
+// }
 PreFieldPiece::PreFieldPiece(int **tiles, int size)
 {
-    std::cout<<"Gibrish\n";
+    // std::cout << "fasdf";
     this->size = size;
     this->tiles = new int *[size];
+    // std::cout << "wow";
+    // std::cout <<" \n";
     for (int i = 0; i < size; i++)
     {
         this->tiles[i] = new int[size];
         for (int j = 0; j < size; j++)
         {
+            // std::cout <<" "<< tiles[i][j];
             this->tiles[i][j] = tiles[i][j];
         }
+        // std::cout <<" \n";
     }
-    std::cout<<"gabrish\n";
 }
 
 void PreFieldPiece::rotateLeft()
@@ -28,17 +31,12 @@ void PreFieldPiece::rotateLeft()
         newTiles[i] = new int[size];
         for (int j = 0; j < size; j++)
         {
-            newTiles[i][j] = (tiles[size - 1- j][i]);
+            newTiles[i][j] = (tiles[j][size - 1 - i]);
             Utils::rotateDirectionLeft(&newTiles[i][j]);
         }
     }
 
     // Deallocate the old memory
-    for (int i = 0; i < size; i++)
-    {
-        delete[] tiles[i];
-    }
-    delete[] tiles;
 
     // Assign the new array
     tiles = newTiles;
@@ -65,5 +63,3 @@ int PreFieldPiece::getSize()
 //     mask <<= start;
 //     return (num & mask) >> start;
 // }
-
-

@@ -19,6 +19,8 @@
             void move(Tile* target,MovementAbility *playerMovementAbility);
             void openFieldPiece();
             bool isFieldPieceAlreadyExist(std::string direction, FieldPiece *fieldPiece);
+    private:
+        void connectAdjacentFieldPieces(FieldPiece *newFieldPiece);
 
     };
 

@@ -17,7 +17,7 @@ private:
 public:
     int size;
     PreFieldPiece(int** tiles, int size);
-    PreFieldPiece();
+    // PreFieldPiece();
     void rotateLeft();
     void rotateRight();
     int** getData();

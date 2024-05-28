@@ -26,7 +26,7 @@ void openFieldPiece(Character *character);
 const char *SERVER_IP = "127.0.0.1"; // Change this to the server's IP address
 const int SERVER_PORT = 27015;
 const int BUFFER_SIZE = 1024;
-Player firstPlayer(1, 0, 1, 1, 1, 1, 1);
+Player firstPlayer(1, 1, 1, 1, 1, 1, 1);
 bool started = false;
 bool printToText = false;
 void HandleServerMessages(SOCKET serverSocket)
@@ -120,7 +120,7 @@ void ClientMain()
                 else
                 {
 
-                    std::cout << cmdStr;
+                    // std::cout << cmdStr;
                     MyReadFile.close(); // Close the file
 
                     std::ofstream file("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt", std::ofstream::out | std::ofstream::trunc);
@@ -140,10 +140,10 @@ void ClientMain()
         }
         else
         {
-            std::cout << "Enter a command: ";
+            // std::cout << "Enter a command: ";
             std::getline(std::cin, cmdStr);
         }
-        std::cout << cmdStr;
+        // std::cout << cmdStr << " " ;
         std::replace(cmdStr.begin(), cmdStr.end(), ' ', '$');
         std::queue<std::string> cmd = splitString(cmdStr.c_str());
         bool sendToOthers = false;
@@ -152,48 +152,49 @@ void ClientMain()
             cmd.pop();
             if (cmd.front() == "green")
             {
-                printPossibleMoves(Field::getInstance().getGreenCharacter(), firstPlayer.movementAbility);
+                // std::cout<<"greeeeen";
+                printPossibleMoves(Field::getInstance()->getGreenCharacter(), firstPlayer.movementAbility);
             }
             if (cmd.front() == "purple")
             {
-                printPossibleMoves(Field::getInstance().getPurpleCharacter(), firstPlayer.movementAbility);
+                printPossibleMoves(Field::getInstance()->getPurpleCharacter(), firstPlayer.movementAbility);
             }
             if (cmd.front() == "orange")
             {
-                printPossibleMoves(Field::getInstance().getOrangeCharacter(), firstPlayer.movementAbility);
+                printPossibleMoves(Field::getInstance()->getOrangeCharacter(), firstPlayer.movementAbility);
             }
             if (cmd.front() == "yellow")
             {
-                printPossibleMoves(Field::getInstance().getYellowCharacter(), firstPlayer.movementAbility);
+                printPossibleMoves(Field::getInstance()->getYellowCharacter(), firstPlayer.movementAbility);
             }
         }
         else if (started && cmd.front() == "get")
         {
             cmd.pop();
-            if (std::stoi(cmd.front()) == Field::getInstance().getGreenCharacter()->tileOn->tileType / 100000)
+            if (std::stoi(cmd.front()) == Field::getInstance()->getGreenCharacter()->tileOn->tileType / 1000000)
             {
                 std::cout << "green character\n";
-                printPossibleMoves(Field::getInstance().getGreenCharacter(), firstPlayer.movementAbility);
+                printPossibleMoves(Field::getInstance()->getGreenCharacter(), firstPlayer.movementAbility);
             }
-            else if (std::stoi(cmd.front()) == Field::getInstance().getPurpleCharacter()->tileOn->tileType / 100000)
+            else if (std::stoi(cmd.front()) == Field::getInstance()->getPurpleCharacter()->tileOn->tileType / 1000000)
             {
                 std::cout << "purple character\n";
-                printPossibleMoves(Field::getInstance().getPurpleCharacter(), firstPlayer.movementAbility);
+                printPossibleMoves(Field::getInstance()->getPurpleCharacter(), firstPlayer.movementAbility);
             }
-            else if (std::stoi(cmd.front()) == Field::getInstance().getOrangeCharacter()->tileOn->tileType / 100000)
+            else if (std::stoi(cmd.front()) == Field::getInstance()->getOrangeCharacter()->tileOn->tileType / 1000000)
             {
                 std::cout << "orange character\n";
-                printPossibleMoves(Field::getInstance().getOrangeCharacter(), firstPlayer.movementAbility);
+                printPossibleMoves(Field::getInstance()->getOrangeCharacter(), firstPlayer.movementAbility);
             }
-            else if (std::stoi(cmd.front()) == Field::getInstance().getYellowCharacter()->tileOn->tileType / 100000)
+            else if (std::stoi(cmd.front()) == Field::getInstance()->getYellowCharacter()->tileOn->tileType / 1000000)
             {
                 std::cout << "yellow character\n";
-                printPossibleMoves(Field::getInstance().getYellowCharacter(), firstPlayer.movementAbility);
+                printPossibleMoves(Field::getInstance()->getYellowCharacter(), firstPlayer.movementAbility);
             }
             else
             {
                 std::cout << "no character on squere " << cmd.front();
-                printPossibleMoves(Field::getInstance().getYellowCharacter(), firstPlayer.movementAbility);
+                printPossibleMoves(Field::getInstance()->getYellowCharacter(), firstPlayer.movementAbility);
             }
             std::cout << "\n";
         }
@@ -247,7 +248,6 @@ void ClientMain()
 
 int main()
 {
-
     std::thread clientThread(ClientMain);
     clientThread.join();
 
@@ -285,10 +285,10 @@ std::queue<std::string> splitString(const char input[])
 
 void printPossibleMoves(MovementAbility *movementAbility)
 {
-    printPossibleMoves(Field::getInstance().getGreenCharacter(), movementAbility);
-    printPossibleMoves(Field::getInstance().getPurpleCharacter(), movementAbility);
-    printPossibleMoves(Field::getInstance().getYellowCharacter(), movementAbility);
-    printPossibleMoves(Field::getInstance().getOrangeCharacter(), movementAbility);
+    printPossibleMoves(Field::getInstance()->getGreenCharacter(), movementAbility);
+    printPossibleMoves(Field::getInstance()->getPurpleCharacter(), movementAbility);
+    printPossibleMoves(Field::getInstance()->getYellowCharacter(), movementAbility);
+    printPossibleMoves(Field::getInstance()->getOrangeCharacter(), movementAbility);
     // printPossibleMoves(getInstance().getGreenCharacter(),movementAbility);
 }
 
@@ -308,13 +308,14 @@ void printPossibleMoves(Character *character, MovementAbility *movementAbility)
         if (printToText && outFile.is_open())
         {
             // Write data to the file
-            outFile << possibleTiles[i]->tileType / 100000;
+            outFile << possibleTiles[i]->tileType / 1000000;
             if (i != possibleTiles.size() - 1)
             {
                 outFile << "$";
             }
         }
-        std::cout << possibleTiles[i]->tileType / 100000 << " ";
+        // std::cout << possibleTiles[i]->tileType  << " ";
+        std::cout << possibleTiles[i]->tileType / 1000000 << " ";
     }
     if (printToText && outFile.is_open())
         outFile.close();
@@ -332,25 +333,27 @@ void handleCmd(std::queue<std::string> *cmd)
     {
         exit(0);
     }
-    std::cout << "hey there " << cmd->front() << "\n";
+    // std::cout << "hey there " << cmd->front() << "\n";
     if (cmd->front() == "start")
     {
         cmd->pop();
         std::vector<int> myLinkedList;
-
-        if (!cmd->empty())
+        //
+        // std::cout<<"k";
+        while (!cmd->empty())
         {
 
-            for (int i = 0; i < stoi(cmd->front()); i++)
-            {
-                cmd->pop();
-                myLinkedList.push_back(std::stoi(cmd->front()));
-                // cmdStr.append("");
-            }
+            // for (int i = 0; i < stoi(cmd->front()); i++)
+
+            myLinkedList.push_back(std::stoi(cmd->front()));
+            // std::cout<<"\n here here "<<cmd->front();
+            cmd->pop();
+            // cmdStr.append("");
         }
-        std::cout<<"k";
-        Field::getInstance().futureFieldPieces = Utils::createQueueFromVector(myLinkedList);
-        // started = true;
+        // std::cout<<"k";
+        Field::getInstance()->futureFieldPieces = Utils::createQueueFromVector(myLinkedList);
+
+        started = true;
     }
     if (started && cmd->front() == "open")
     {
@@ -360,22 +363,24 @@ void handleCmd(std::queue<std::string> *cmd)
         Character *character;
         if (color == "green")
         {
-            character = Field::getInstance().getGreenCharacter();
+            character = Field::getInstance()->getGreenCharacter();
         }
         if (color == "purple")
         {
-            character = Field::getInstance().getPurpleCharacter();
+            character = Field::getInstance()->getPurpleCharacter();
         }
         if (color == "orange")
         {
-            character = Field::getInstance().getOrangeCharacter();
+            character = Field::getInstance()->getOrangeCharacter();
         }
         if (color == "yellow")
         {
-            character = Field::getInstance().getYellowCharacter();
+            character = Field::getInstance()->getYellowCharacter();
         }
+        // std::cout << "request to open";
         if (canOpenFieldPiece(character))
         {
+            // std::cout << "able to open";
             openFieldPiece(character);
         }
     }
@@ -392,16 +397,16 @@ void handleCmd(std::queue<std::string> *cmd)
         movementAbility = queueToMovementAbility(cmd, movementAbility);
         if (color == "green")
         {
-            std::vector<Tile *> possibleTiles = Field::getInstance().getGreenCharacter()->getPlausibleTargetTiles(movementAbility);
+            std::vector<Tile *> possibleTiles = Field::getInstance()->getGreenCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
 
-                if (possibleTiles[i]->tileType / 100000 == number)
+                if (possibleTiles[i]->tileType / 1000000 == number)
                 {
-                    std::cout << " value is is: " << possibleTiles[i]->tileType / 100000;
+                    // std::cout << " value is is: " << possibleTiles[i]->tileType / 1000000;
                     didMove = true;
 
-                    Field::getInstance().getGreenCharacter()->move(possibleTiles[i], movementAbility);
+                    Field::getInstance()->getGreenCharacter()->move(possibleTiles[i], movementAbility);
                     std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
                     if (outFile.is_open())
                         outFile << "move$" << color << "$" << number;
@@ -410,14 +415,14 @@ void handleCmd(std::queue<std::string> *cmd)
         }
         else if (color == "purple")
         {
-            std::vector<Tile *> possibleTiles = Field::getInstance().getPurpleCharacter()->getPlausibleTargetTiles(movementAbility);
+            std::vector<Tile *> possibleTiles = Field::getInstance()->getPurpleCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                if (possibleTiles[i]->tileType / 100000 == number)
+                if (possibleTiles[i]->tileType / 1000000 == number)
                 {
                     didMove = true;
 
-                    Field::getInstance().getPurpleCharacter()->move(possibleTiles[i], movementAbility);
+                    Field::getInstance()->getPurpleCharacter()->move(possibleTiles[i], movementAbility);
                     std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
                     if (outFile.is_open())
                         outFile << "move$" << color << "$" << number;
@@ -426,14 +431,14 @@ void handleCmd(std::queue<std::string> *cmd)
         }
         else if (color == "orange")
         {
-            std::vector<Tile *> possibleTiles = Field::getInstance().getOrangeCharacter()->getPlausibleTargetTiles(movementAbility);
+            std::vector<Tile *> possibleTiles = Field::getInstance()->getOrangeCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                if (possibleTiles[i]->tileType / 100000 == number)
+                if (possibleTiles[i]->tileType / 1000000 == number)
                 {
                     didMove = true;
 
-                    Field::getInstance().getOrangeCharacter()->move(possibleTiles[i], movementAbility);
+                    Field::getInstance()->getOrangeCharacter()->move(possibleTiles[i], movementAbility);
                     std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
                     if (outFile.is_open())
                         outFile << "move$" << color << "$" << number;
@@ -442,17 +447,17 @@ void handleCmd(std::queue<std::string> *cmd)
         }
         else if (color == "yellow")
         {
-            std::vector<Tile *> possibleTiles = Field::getInstance().getYellowCharacter()->getPlausibleTargetTiles(movementAbility);
+            std::vector<Tile *> possibleTiles = Field::getInstance()->getYellowCharacter()->getPlausibleTargetTiles(movementAbility);
             for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
             {
-                if (possibleTiles[i]->tileType / 100000 == number)
+                if (possibleTiles[i]->tileType / 1000000 == number)
                 {
                     didMove = true;
 
                     std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
                     if (outFile.is_open())
                         outFile << "move$" << color << "$" << number;
-                    Field::getInstance().getYellowCharacter()->move(possibleTiles[i], movementAbility);
+                    Field::getInstance()->getYellowCharacter()->move(possibleTiles[i], movementAbility);
                 }
             }
         }
@@ -514,23 +519,28 @@ bool stringToBool(const std::string &str)
 }
 bool canOpenFieldPiece(Character *character)
 {
+    // std::cout<<"please";
+    // std::cout<<"\n";
+    // std::cout<<"is opening "<< (Utils::getTileFeature(character->tileOn->tileType) )<<"  tile color " << Utils::getTileColor(character->tileOn->tileType) << " character color "<< character->name;
     bool canOpen = Utils::getTileFeature(character->tileOn->tileType) == "opening" && Utils::getTileColor(character->tileOn->tileType) == character->name;
     if (Utils::getDirection(character->tileOn->tileType) == "up")
     {
-        canOpen = canOpen && character->tileOn->tileAbove != nullptr;
+        canOpen = canOpen && character->tileOn->tileAbove == nullptr;
     }
     if (Utils::getDirection(character->tileOn->tileType) == "down")
     {
-        canOpen = canOpen && character->tileOn->tileBellow != nullptr;
+        canOpen = canOpen && character->tileOn->tileBellow == nullptr;
     }
     if (Utils::getDirection(character->tileOn->tileType) == "right")
     {
-        canOpen = canOpen && character->tileOn->tileToRight != nullptr;
+        canOpen = canOpen && character->tileOn->tileToRight == nullptr;
     }
     if (Utils::getDirection(character->tileOn->tileType) == "left")
     {
-        canOpen = canOpen && character->tileOn->tileToLeft != nullptr;
+        // std::cout<< canOpen<<" ";
+        canOpen = canOpen && character->tileOn->tileToLeft == nullptr;
     }
+    // std::cout << "can open" << canOpen << "\n";
     return canOpen;
 }
 

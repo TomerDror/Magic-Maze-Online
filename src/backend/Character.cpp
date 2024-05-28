@@ -1,16 +1,6 @@
 
 #include "Character.h"
 
-// class Character
-// {
-// public:
-//     std::string name;
-//     FieldPiece *fieldPieceOn;
-//     Tile *tileOn;
-//     Character(std::string, FieldPiece *startingPieceField, Tile *startingTile);
-//     std::vector<Tile*> getPlausibleTargetTiles(MovementAbility *playerMovementAbility);
-// };
-
 Character::Character(std::string name, FieldPiece *startingFieldPiece, Tile *startingTile)
 {
     this->name = name;
@@ -28,18 +18,17 @@ std::vector<Tile *> Character::getPlausibleTargetTiles(MovementAbility *playerMo
 
     std::vector<Tile *> portals;
     if (this->name == "green")
-        portals = Field::getInstance().greenPortals;
+        portals = Field::getInstance()->greenPortals;
     if (this->name == "purple")
-        portals = Field::getInstance().purplePortals;
+        portals = Field::getInstance()->purplePortals;
     if (this->name == "orange")
-        portals = Field::getInstance().orangePortals;
+        portals = Field::getInstance()->orangePortals;
     if (this->name == "yellow")
-        portals = Field::getInstance().yellowPortals;
+        portals = Field::getInstance()->yellowPortals;
     for (Tile *tile : portals)
     {
-        // std::cout<<"fasdf";
         // if()
-        if (tile != nullptr && playerMovementAbility->canUsePortals && Field::getInstance().isTileVacated(tile))
+        if (tile != nullptr && playerMovementAbility->canUsePortals && Field::getInstance()->isTileVacated(tile))
         {
             plausibleTargetTiles.push_back(tile);
         }
@@ -68,106 +57,171 @@ void Character::move(Tile *tile, MovementAbility *playerMovementAbility)
             break;
         }
     }
-    // std::cout<<"\n"<< isValidMove<<"\n";
     if (isValidMove)
     {
         this->tileOn = tile;
     }
 }
 void Character::openFieldPiece()
-{
-    if (Utils::getTileFeature(this->tileOn->tileType) == "opening" && this->name == Utils::getTileColor(this->tileOn->tileType)  && isFieldPieceAlreadyExist(Utils::getDirection(this->tileOn->tileType), this->tileOn->fieldPieceOn ))//this->tileOn->fieldPieceOn->upPiece) // add check that there isnt a fp in that direction TODo
+{ // TODO
+  //  if (Utils::getTileFeature(this->tileOn->tileType) == "opening" && this->name == Utils::getTileColor(this->tileOn->tileType)  && isFieldPieceAlreadyExist(Utils::getDirection(this->tileOn->tileType), this->tileOn->fieldPieceOn ))//this->tileOn->fieldPieceOn->upPiece) // add check that there isnt a fp in that direction TODo
+  //  {
+
+    if (!Field::getInstance()->futureFieldPieces.empty())
     {
-        if (!Field::getInstance().futureFieldPieces.empty())
+        FieldPiece *newFieldPiece;
+        std::string direction = Utils::getDirection(this->tileOn->tileType);
+        // std::cout << direction;
+        int x = this->tileOn->fieldPieceOn->x;
+        int y = this->tileOn->fieldPieceOn->y;
+        PreFieldPiece preFieldPiece = *(Field::getInstance()->allFieldPieces[Field::getInstance()->futureFieldPieces.front()]);
+        if (direction == "up")
         {
-            FieldPiece *newFieldPiece;
-            std::string direction = Utils::getDirection(this->tileOn->tileType);
-            if (direction == "up")
-            {
-                PreFieldPiece preFieldPiece = Field::getInstance().allFieldPieces[Field::getInstance().futureFieldPieces.front()];
-                newFieldPiece = new FieldPiece(&preFieldPiece);
-                Field::getInstance().futureFieldPieces.pop();
-                
-                this->tileOn->fieldPieceOn->upPiece = newFieldPiece;
-                newFieldPiece->downPiece = this->tileOn->fieldPieceOn;
+            newFieldPiece = new FieldPiece(x, y + 1, Field::getInstance(), &preFieldPiece);
+            Field::getInstance()->futureFieldPieces.pop();
+            Field::getInstance()->openedFieldPieces.push_back(newFieldPiece);
+        }
+        else if (direction == "down")
+        {
+            preFieldPiece.rotateLeft();
+            preFieldPiece.rotateLeft();
 
-                this->tileOn->tileAbove = newFieldPiece->entrance;
-                newFieldPiece->entrance->tileBellow = this->tileOn;
-            }
-            else if (direction == "down")
-            {
-                PreFieldPiece preFieldPiece = Field::getInstance().allFieldPieces[Field::getInstance().futureFieldPieces.front()];
-                preFieldPiece.rotateLeft();
-                preFieldPiece.rotateLeft();
-                newFieldPiece = new FieldPiece(&preFieldPiece);
-                Field::getInstance().futureFieldPieces.pop();
+            newFieldPiece = new FieldPiece(x, y - 1, Field::getInstance(), &preFieldPiece);
+            Field::getInstance()->futureFieldPieces.pop();
+            Field::getInstance()->openedFieldPieces.push_back(newFieldPiece);
+        }
+        else if (direction == "right")
+        {
+            preFieldPiece.rotateRight();
 
-                this->tileOn->fieldPieceOn->downPiece = newFieldPiece;
-                newFieldPiece->upPiece = this->tileOn->fieldPieceOn;
-                this->tileOn->tileBellow = newFieldPiece->entrance;
-                newFieldPiece->entrance->tileAbove = this->tileOn;
-            }
-            else if (direction == "right")
-            {
-                PreFieldPiece preFieldPiece = Field::getInstance().allFieldPieces[Field::getInstance().futureFieldPieces.front()];
-                preFieldPiece.rotateRight();
-                newFieldPiece = new FieldPiece(&preFieldPiece);
-                Field::getInstance().futureFieldPieces.pop();
+            newFieldPiece = new FieldPiece(x + 1, y, Field::getInstance(), &preFieldPiece);
+            Field::getInstance()->futureFieldPieces.pop();
+            Field::getInstance()->openedFieldPieces.push_back(newFieldPiece);
+        }
+        else if (direction == "left")
+        {
+            preFieldPiece.rotateLeft();
 
-                this->tileOn->fieldPieceOn->rightPiece = newFieldPiece;
-                newFieldPiece->leftPiece = this->tileOn->fieldPieceOn;
-                this->tileOn->tileToRight = newFieldPiece->entrance;
-                newFieldPiece->entrance->tileToLeft = this->tileOn;
-            }
-            else if (direction == "left")
-            {
-                PreFieldPiece preFieldPiece = Field::getInstance().allFieldPieces[Field::getInstance().futureFieldPieces.front()];
-                preFieldPiece.rotateLeft();
-                newFieldPiece = new FieldPiece(&preFieldPiece);
-                Field::getInstance().futureFieldPieces.pop();
-                
-                this->tileOn->fieldPieceOn->leftPiece = newFieldPiece;
-                newFieldPiece->rightPiece = this->tileOn->fieldPieceOn;
-                this->tileOn->tileToLeft = newFieldPiece->entrance;
-                newFieldPiece->entrance->tileToRight = this->tileOn;
-            }
-            else
-            {
-                std::cout << "invalid direction";
-            }
-            // connect fp
-            // connect tiles
+            newFieldPiece = new FieldPiece(x - 1, y, Field::getInstance(), &preFieldPiece);
+            Field::getInstance()->futureFieldPieces.pop();
+            Field::getInstance()->openedFieldPieces.push_back(newFieldPiece);
+        }
+        else
+        {
 
-            // TODO rotate fp
+            std::cout << "invalid direction";
+            return;
+        }
+        connectAdjacentFieldPieces(newFieldPiece);
+        // connect fp
+        // connect tiles
 
-            // change tile type
-            Utils::setTileFeature(&this->tileOn->tileType, 1);
+        // TODO rotate fp
+
+        // change tile type
+    }
+    // }
+}
+bool Character::isFieldPieceAlreadyExist(std::string direction, FieldPiece *fieldPiece)
+{
+    if (direction == "up")
+    {
+        return fieldPiece->upPiece != nullptr;
+    }
+    else if (direction == "down")
+    {
+        return fieldPiece->downPiece != nullptr;
+    }
+    else if (direction == "right")
+    {
+        return fieldPiece->rightPiece != nullptr;
+    }
+    else if (direction == "left")
+    {
+        return fieldPiece->leftPiece != nullptr;
+    }
+
+    std::cout << "invalid direction";
+    return false;
+}
+
+void Character::connectAdjacentFieldPieces(FieldPiece *newFieldPiece)
+{
+    for (FieldPiece *fieldPiece : Field::getInstance()->openedFieldPieces)
+    {
+        if (newFieldPiece->x == fieldPiece->x && newFieldPiece->y == fieldPiece->y + 1)
+        { // opening above
+
+            for (Tile *openingInNewFieldPiece : newFieldPiece->openings)
+            {
+                for (Tile *openingInFieldPiece : fieldPiece->openings)
+                {
+                    // std::cout << " new tile " << Utils::getDirection(openingInNewFieldPiece->tileType) << " old tile " << Utils::getDirection(openingInFieldPiece->tileType) << "\n";
+                    if (Utils::getDirection(openingInNewFieldPiece->tileType) == "down" && Utils::getDirection(openingInFieldPiece->tileType) == "up")
+                    {
+                        // std::cout << "KA KA";
+                        newFieldPiece->downPiece = fieldPiece;
+                        fieldPiece->upPiece = newFieldPiece;
+                        openingInNewFieldPiece->tileBellow = openingInFieldPiece;
+                        openingInFieldPiece->tileAbove = openingInNewFieldPiece;
+                    }
+                }
+            }
+        }
+        if (newFieldPiece->x == fieldPiece->x && newFieldPiece->y == fieldPiece->y - 1)
+        { // opening bellow
+            for (Tile *openingInNewFieldPiece : newFieldPiece->openings)
+            {
+                for (Tile *openingInFieldPiece : fieldPiece->openings)
+                {
+                    // std::cout << " new tile " << Utils::getDirection(openingInNewFieldPiece->tileType) << " old tile " << Utils::getDirection(openingInFieldPiece->tileType) << "\n";
+                    if (Utils::getDirection(openingInNewFieldPiece->tileType) == "up" && Utils::getDirection(openingInFieldPiece->tileType) == "down")
+                    {
+                        newFieldPiece->upPiece = fieldPiece;
+                        fieldPiece->downPiece = newFieldPiece;
+                        openingInNewFieldPiece->tileAbove = openingInFieldPiece;
+                        openingInFieldPiece->tileBellow = openingInNewFieldPiece;
+                    }
+                }
+            }
+        }
+        if (newFieldPiece->x == fieldPiece->x + 1 && newFieldPiece->y == fieldPiece->y)
+        { // opening to right
+
+            for (Tile *openingInNewFieldPiece : newFieldPiece->openings)
+            {
+                for (Tile *openingInFieldPiece : fieldPiece->openings)
+                {
+                    // std::cout << "right new tile " << Utils::getDirection(openingInNewFieldPiece->tileType) << " old tile " << Utils::getDirection(openingInFieldPiece->tileType) << "\n";
+                    if (Utils::getDirection(openingInNewFieldPiece->tileType) == "left" && Utils::getDirection(openingInFieldPiece->tileType) == "right")
+                    {
+                        // std::cout << "KA KA" << openingInNewFieldPiece->tileType / 1000000 << openingInFieldPiece->tileType / 1000000;
+                        newFieldPiece->leftPiece = fieldPiece;
+                        fieldPiece->rightPiece = newFieldPiece;
+                        openingInNewFieldPiece->tileToLeft = openingInFieldPiece;
+                        openingInFieldPiece->tileToRight = openingInNewFieldPiece;
+                    }
+                }
+            }
+        }
+        if (newFieldPiece->x == fieldPiece->x - 1 && newFieldPiece->y == fieldPiece->y)
+        {
+            for (Tile *openingInNewFieldPiece : newFieldPiece->openings)
+            {
+                for (Tile *openingInFieldPiece : fieldPiece->openings)
+                {
+                    // std::cout << "left new tile " << Utils::getDirection(openingInNewFieldPiece->tileType) << " old tile " << Utils::getDirection(openingInFieldPiece->tileType) << "\n";
+                    if (Utils::getDirection(openingInNewFieldPiece->tileType) == "right" && Utils::getDirection(openingInFieldPiece->tileType) == "left")
+                    {
+                        // std::cout << "KA KA" << openingInNewFieldPiece->tileType / 1000000 <<" "<< openingInFieldPiece->tileType / 1000000<<" ";
+                        // std::cout <<  openingInNewFieldPiece->tileType<<" right "  << openingInFieldPiece->tileType <<"\n";
+                        newFieldPiece->rightPiece = fieldPiece;
+                        fieldPiece->leftPiece = newFieldPiece;
+                        openingInNewFieldPiece->tileToRight = openingInFieldPiece;
+                        openingInFieldPiece->tileToLeft = openingInNewFieldPiece;
+                    }
+                }
+            }
         }
     }
-}
-bool Character::isFieldPieceAlreadyExist(std::string direction, FieldPiece *fieldPiece){
-            if (direction == "up")
-            {
-                return fieldPiece->upPiece !=nullptr;
-                
-            }
-            else if (direction == "down")
-            {
-                return fieldPiece->downPiece !=nullptr;
-                
-            }
-            else if (direction == "right")
-            {
-                return fieldPiece->rightPiece !=nullptr;
-                
-            }
-            else if (direction == "left")
-            {
-                return fieldPiece->leftPiece !=nullptr;
-                
-            }
-           
-                std::cout << "invalid direction";
-                return false;
-            
 }

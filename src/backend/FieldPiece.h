@@ -8,7 +8,7 @@ class Field;
 #include <iostream>
 #include "PreFieldPiece.h"
 #include "Tile.h"
-#include <unordered_map> 
+#include <unordered_map>
 #include <stdexcept>
 #include "Field.h"
 #include <vector>
@@ -16,23 +16,21 @@ class Field;
 class FieldPiece
 {
 public:
-
+    int x;
+    int y;
     Tile *tile;
     Tile *entrance;
-    std::vector<Tile*> exits;
+    std::vector<Tile *> openings;
 
- 
-    FieldPiece(PreFieldPiece *preFieldPiece);
-    FieldPiece(Field *field, PreFieldPiece *preFieldPiece);
+    // FieldPiece(PreFieldPiece *preFieldPiece);
+    FieldPiece(int x, int y,Field *field, PreFieldPiece *preFieldPiece);
 
     FieldPiece *leftPiece;
     FieldPiece *rightPiece;
     FieldPiece *upPiece;
     FieldPiece *downPiece;
+
 private:
-void locateTile(Tile **returnTile, Tile *currTile, int x, int y, int **field, std::unordered_map<int, Tile *> *umap_ptr);
-
-
-
+    void locateTile(Tile **returnTile, int x, int y, int **field,int size, std::unordered_map<int, Tile *> *umap_ptr,bool blockedInDirection);
 };
 #endif
