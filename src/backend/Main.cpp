@@ -25,13 +25,14 @@ void handleCmd(std::queue<std::string> *cmd);
 bool canOpenFieldPiece(Character *character);
 void openFieldPiece(Character *character);
 std::vector<std::string> cmds;
-const char *SERVER_IP = "127.0.0.1"; // Change this to the server's IP address
+std::string SERVER_IP = "127.0.0.1"; // Change this to the server's IP address
 const int SERVER_PORT = 27015;
 Player firstPlayer(0, 0, 0, 0, 0, 0, 0);
 bool started = false;
 bool printToText = true;
 const int SHM_SIZE = 514; // 2 buffers of 256 bytes each + 2 flags
 const int BUFFER_SIZE = 256;
+bool tryToConnect = false;
 
 void HandleServerMessages(SOCKET serverSocket)
 {
@@ -83,39 +84,46 @@ std::string recv_from_python()
 
 void ClientMain()
 {
-
+    bool connected = false;
+    SOCKET clientSocket;
     while (!connected)
-    WSADATA wsaData;
-    int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (result != 0)
     {
-        std::cerr << "WSAStartup failed: " << result << std::endl;
-        return;
+        while (!tryToConnect)
+        {
+        }
+        WSADATA wsaData;
+        int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+        if (result != 0)
+        {
+            std::cerr << "WSAStartup failed: " << result << std::endl;
+        }
+
+         clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+        if (clientSocket == INVALID_SOCKET)
+        {
+            std::cerr << "Error creating client socket: " << WSAGetLastError() << std::endl;
+            WSACleanup();
+            
+        }
+
+        sockaddr_in serverAddr;
+        serverAddr.sin_family = AF_INET;
+        serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP.c_str());
+        serverAddr.sin_port = htons(SERVER_PORT);
+        connected = true;
+        result = connect(clientSocket, reinterpret_cast<sockaddr *>(&serverAddr), sizeof(serverAddr));
+        if (result == SOCKET_ERROR)
+        {
+            connected = false;
+            tryToConnect = false;
+            std::cerr << "Failed to connect to server: " << WSAGetLastError() << std::endl;
+            closesocket(clientSocket);
+            WSACleanup();
+            send_to_python("failed_login$"+SERVER_IP);
+        }
     }
-
-    SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (clientSocket == INVALID_SOCKET)
-    {
-        std::cerr << "Error creating client socket: " << WSAGetLastError() << std::endl;
-        WSACleanup();
-        return;
-    }
-
-    sockaddr_in serverAddr;
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
-    serverAddr.sin_port = htons(SERVER_PORT);
-
-    result = connect(clientSocket, reinterpret_cast<sockaddr *>(&serverAddr), sizeof(serverAddr));
-    if (result == SOCKET_ERROR)
-    {
-        std::cerr << "Failed to connect to server: " << WSAGetLastError() << std::endl;
-        closesocket(clientSocket);
-        WSACleanup();
-        return;
-    }
-
     std::cout << "Connected to server.";
+    send_to_python("connected");
     std::thread serverThread(HandleServerMessages, clientSocket);
 
     // Main loop to send commands to the server
@@ -167,7 +175,6 @@ void ClientMain()
         else if (started && cmd.front() == "get")
         {
             cmd.pop();
-            std::cout << "how much " << cmd.front();
 
             if (std::stoi(cmd.front()) == Field::getInstance()->getGreenCharacter()->tileOn->tileType / 1000000)
             {
@@ -229,9 +236,21 @@ void listen_for_python_messages()
         std::string message = recv_from_python();
         if (!message.empty())
         {
-            std::cout << "Received from Python: " << message << std::endl;
-            cmds.push_back(message);
+            std::string prefix = "setIp";
+            if (message.compare(0, prefix.length(), prefix) == 0)
+            {
+                std::queue<std::string> cmd = splitString(message.c_str());
+                cmd.pop();
+                SERVER_IP = cmd.front().c_str();
+                tryToConnect = true;
+            }
+            else
+            {
+                std::cout << "Received from Python: " << message << std::endl;
+                cmds.push_back(message);
+            }
         }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 }
@@ -381,8 +400,7 @@ void printPossibleMoves(Character *character, MovementAbility *movementAbility)
         str.append("none");
     }
     send_to_python(str);
-    std::cout << "sent " << str;
-    std::cout << "\n";
+
 }
 
 void handleCmd(std::queue<std::string> *cmd)
@@ -442,15 +460,19 @@ void handleCmd(std::queue<std::string> *cmd)
         {
             character = Field::getInstance()->getYellowCharacter();
         }
-        // std::cout << "request to open";
+        std::cout << "request to open";
         if (canOpenFieldPiece(character))
         {
-            // std::cout << "able to open";
+            std::cout << "able to open";
             openFieldPiece(character);
+            std::cout<<"open";
             double fpInDir = Utils::getDirection(character->tileOn->tileType) == "up" ? (character->tileOn->tileAbove->tileType) : Utils::getDirection(character->tileOn->tileType) == "down" ? (character->tileOn->tileBellow->tileType)
                                                                                                                                : Utils::getDirection(character->tileOn->tileType) == "left"   ? (character->tileOn->tileToLeft->tileType)
                                                                                                                                                                                               : (character->tileOn->tileToRight->tileType - 1);
+            std::cout<<"open2";
             send_to_python("open$" + color + "$" + std::to_string((character->tileOn->tileType - 1) / 16 + 1) + "$" + Utils::getDirection(character->tileOn->tileType) + "$" + std::to_string(fpInDir));
+            std::string a= "open$" + color + "$" + std::to_string((character->tileOn->tileType - 1) / 16 + 1) + "$" + Utils::getDirection(character->tileOn->tileType) + "$" + std::to_string(fpInDir);
+            std::cout<<"hellow"<<a;
         }
     }
     if (started && cmd->front() == "move")

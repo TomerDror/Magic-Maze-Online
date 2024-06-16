@@ -14,7 +14,7 @@ FieldPiece::FieldPiece(int x, int y, Field *playingField, PreFieldPiece *preFiel
     {
         for (int x = 0; x < size; x++)
         {
-            // std::cout<<x<<", "<<y <<" "<<field[y][x] <<"\n";
+            std::cout<<x<<", "<<y <<" "<<field[y][x] <<"\n";
             if (field[y][x] != 0)
             {
                 Tile *currTile;

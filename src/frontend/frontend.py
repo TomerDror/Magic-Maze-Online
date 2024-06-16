@@ -1,7 +1,53 @@
 import pygame
 from multiprocessing import shared_memory
 import threading
+rules_text = """\
 
+
+
+Magic Maze is best enjoyed as a co-operative experience anywhere up to eight players. My advice would be to start with four players as it
+ seems to be the sweet spot between organised chaos and complete entropy. I will touch up briefly on a Solo Game at the end of the section
+ but for now will stick to a four-player variant.
+The intelligence behind Magic Maze resides within its utter simplicity, the game itself comprising of little more than four Basic Steps:
+1. Flip the timer and search the shopping mall.
+2. Place each Hero Pawn on their corresponding Item Space; depicted by the identical symbol and colour of each Hero.
+3. When all four Hero Pawns stand on their respective Item Space simultaneously, you grab the items (flip the Theft Tile), the alarms are
+triggered, and you dash for the exits in an attempt to out run the malls armed guards (before the timer expires).
+4. Each Hero reaches their respective exit space (the exit sign with the colour and symbol of the corresponding Hero Pawn) and when all
+four heroes reach their exits, you are free! You’ve done it! You’ve stolen precious items from the humble servants of a fantasy realm!
+Well done you. However, if the Sand Timer runs out at any moment during gameplay, the Guards have rumbled your schemes and it’s off to jail
+, or a dungeon, or the guillotine. Any demise you dream of will suffice but basically, you’re met with defeat.
+The games brilliance is delivered through one simple rule; You can’t talk or communicate in anyway other than using the “Do Something Pawn.”
+ That means no hand gestures, eye gestures, or even farting in Morse code!
+Individual Player Actions
+As mentioned in the set-up for Magic Maze, each player is given an Action Tile; each tile displays what actions that player can take. E.G:
+Player 1: Move Up.
+Player 2: Search and Move Down.
+Player 3: Use Escalators and Move Right.
+Player 4: Use Vortex and Move Left.
+Each player can only perform actions displayed on their Action Tile, however all players can perform actions at any time.
+You don’t have to take turns. The only rule is that if another player has committed to doing something then you cannot stop them
+(don’t grab the Hero Pawn out their hands and commit to rude gestures) until they have let go of the Hero Pawn they are moving.
+ If they’ve made a blunder, simply wait until they’ve finished before correcting.
+Moving
+You’ve learned to walk! Amazing. However, you only practised walking in one direction? You can only walk either up, down, left or right
+depending on the Action Tile in front of you. Each Player can move a Hero Pawn any number of spaces and at any time in their
+designated direction.
+Heroes cannot pass through walls or through each other. (Remember to keep the north arrow on each Action Tile aligned with the Mall’s
+Starting Tile)
+Searching
+You figured out how to move from one part of a room to another! When a Hero Pawn is placed on a Search Space that has their colour,
+ then you may take another tile from the Mall Tile Deck. Connect the new tile to the one from which you are searching in order to create a passage.
+   Now any Hero Pawn is free to move through the passage regardless of the colour of the Search Space symbol. The mall will continue to
+   grow this way until all tiles are placed (Be very conscious of table space. It’s easy to accidentally create a mall that spills over the table).
+Using Escalators
+After years of arduous research, you alone have unearthed the complexities of using escalators. When a Hero Pawn is placed either at the foot or
+peak of an Escalator Space then you may move the Hero Pawn up or down accordingly.
+Using a Vortex
+You, and only you, have mastered teleportation and are able to send the Hero Pawns hurtling through a vortex. When a Hero Pawn is
+placed on a Vortex Space you can move the Hero Pawn on to any other Vortex Space of the same colour. This is a crucially useful way
+of covering long distances with speed.
+"""
 
 def authenticate(username, password):
     cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
@@ -21,7 +67,7 @@ def register(username, password):
 # Shared memory size (2 buffers of 256 bytes each + 2 flags)
 SHM_SIZE = 514
 BUFFER_SIZE = 256
-state = "not started"
+state = "set_ip"
 # def cleanup_shm(shm_name):
 #     try:
 #         existing_shm = shared_memory.SharedMemory(name=shm_name)
@@ -46,6 +92,10 @@ shm = open_or_create_shm('my_shared_memory')
 buffer = shm.buf
 global a
 a = True
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (200, 200, 200)
+
 opened_fieldpiece = [1]
 last_used_color_name = "green"
 field_piece_pos_to_id ={13: 1}
@@ -54,6 +104,7 @@ pygame.init()
 window_size = (800, 600)
 screen = pygame.display.set_mode(window_size)
 pygame.display.set_caption("Python-C++ IPC")
+rules_opened = False
 target_pos = []
 purple = (12,12)
 green = (13,13)
@@ -101,18 +152,83 @@ class Button:
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
+def open_menu():
+    global rules_opened
+    rules_opened = True
+
+def close_menu():
+    global rules_opened
+    rules_opened = False
+    screen.blit(background_image, (0, 0))
+    start_button.draw(screen)
+    open_button.draw(screen)
+open_button = Button(50, 50, 200, 50, "Open Menu", lambda: setattr(open_button, 'onclick', open_menu))
+close_button = Button(50, 100, 200, 50,"Close Menu", lambda: setattr(open_button, 'onclick', close_menu))
+
+
 
 # Create a start button
 start_button = Button(350, 275, 100, 50, 'Start', lambda: send_to_cpp('start'))
+class TextInputBox:
+    def __init__(self, x, y, width, height, text=''):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.color_inactive = pygame.Color('lightskyblue3')
+        self.color_active = pygame.Color('dodgerblue2')
+        self.color = self.color_inactive
+        self.text = text
+        self.font = pygame.font.Font(None, 36)
+        self.txt_surface = self.font.render(text, True, self.color)
+        self.active = False
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # If the user clicked on the input_box rect.
+            if self.rect.collidepoint(event.pos):
+                # Toggle the active variable.
+                self.active = not self.active
+            else:
+                self.active = False
+            # Change the current color of the input box.
+            self.color = self.color_active if self.active else self.color_inactive
+        if event.type == pygame.KEYDOWN:
+            if self.active:
+                if event.key == pygame.K_RETURN:
+                    return self.text
+                elif event.key == pygame.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                else:
+                    self.text += event.unicode
+                # Re-render the text.
+                self.txt_surface = self.font.render(self.text, True, self.color)
+        return None
+
+    def draw(self, screen):
+        # Blit the text.
+        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+        # Blit the rect.
+        pygame.draw.rect(screen, self.color, self.rect, 2)
+    def get_text(self):
+        return self.text
+# Create text input box and button
+ip_input_box = TextInputBox(300, 200, 200, 50)
+set_ip_button = Button(350, 275, 100, 50, 'Set IP', lambda: set_ip(ip_input_box.get_text()))
+
+# Function to set IP address
+def set_ip(ip_address):
+    global state
+    print("IP Address set to:", ip_address)
+    send_to_cpp("setIp$"+ip_address )
+    # state = 'not started'
 
 # Function to send a message to the C++ program
 def send_to_cpp(message):
-    print(message)
-    if len(message) > BUFFER_SIZE:
-        raise ValueError("Message too long")
-    buffer[0] = 1  # Indicate message is ready
-    buffer[2:2 + len(message)] = bytearray(message.encode('utf-8'))
-    buffer[2 + len(message):258] = bytearray(BUFFER_SIZE - len(message))  # Clear remaining bytes
+    global rules_opened
+    if not rules_opened:
+        if len(message) > BUFFER_SIZE:
+            raise ValueError("Message too long")
+        buffer[0] = 1  # Indicate message is ready
+        buffer[2:2 + len(message)] = bytearray(message.encode('utf-8'))
+        buffer[2 + len(message):258] = bytearray(BUFFER_SIZE - len(message))  # Clear remaining bytes
 
 # Function to receive a message from the C++ program
 def recv_from_cpp():
@@ -158,7 +274,13 @@ def listen_for_cpp_messages():
                 # print ("sdljkfhasdljkfh" +cmd[1]+cmd[2]+cmd[3]+cmd[4]+cmd[5]+cmd[6]+cmd[7])
 
             print(f"Received from C++: {message}")
+            if message == "connected":
 
+                state = "not started"
+            if cmd[0] == 'failed_login':
+                text = "failed to log in at " +cmd[1] 
+                text_surface = font.render(text, True, (255,0,0))
+                screen.blit(text_surface, (200, 500))
             if state == 'character selection' :
                 color = cmd[0]
                 if len(cmd)>1:
@@ -183,10 +305,11 @@ def listen_for_cpp_messages():
                     global open_direction
                     open_direction = cmd[-1]
             if cmd[0 ] == "open":
-
+                print(cmd)
                 moved_character = True
                 floating_point_number = float(cmd[4])
                 id = int((floating_point_number / 1000000 - 1) / 16) + 1   
+                print(id)
                 # print()
                 # print(cmd[4])
                 # print(id)
@@ -197,6 +320,7 @@ def listen_for_cpp_messages():
                 global yellow
                 global purple
                 global orange
+                print(" k" +direction)
                 if direction !="none":
                     currTile  = (
                         green if color == "green" else
@@ -207,23 +331,26 @@ def listen_for_cpp_messages():
                     x,y = currTile
                     fp = getFieldPieceFromTile (x,y)
                     new_fp =0
-                    if open_direction == "up" and fp >5:
+                    if direction == "up" and fp >5:
                         new_fp =fp-5
-                    if open_direction == "down" and fp<21:
+                    if direction == "down" and fp<21:
                         new_fp =fp+5
-                    if open_direction == "left" and fp%5!=1:
+                    if direction == "left" and fp%5!=1:
                         new_fp =fp-1
-                    if open_direction == "right" and fp%5!=0:
+                    if direction == "right" and fp%5!=0:
                         new_fp =fp+1
+                    print("open direction"+ str(open_direction))
+
                     if new_fp != 0:
+                        print(str(new_fp) +" asdfj"+str(id))
                         field_piece_pos_to_id[new_fp] = id  
-                        if open_direction == "down" :
+                        if direction == "down" :
                             LOADED_FIELD_PIECE[id-1] = pygame.transform.rotate(LOADED_FIELD_PIECE[id-1], 180)
 
-                        if open_direction == "left" :
+                        if direction == "left" :
                             LOADED_FIELD_PIECE[id-1] = pygame.transform.rotate(LOADED_FIELD_PIECE[id-1], 90)
 
-                        if open_direction == "right":
+                        if direction == "right":
                             LOADED_FIELD_PIECE[id-1] = pygame.transform.rotate(LOADED_FIELD_PIECE[id-1], 270)
 
                 state = 'character selection'
@@ -293,14 +420,20 @@ def getFieldPieceFromTile(x, y):
     return 0
 
 def print_field_pieces():
+    print(opened_fieldpiece)
+    print(field_piece_pos_to_id)
     for i in range(len(opened_fieldpiece)):
+        print(i)
         id_to_field_piece = {value: key for key, value in field_piece_pos_to_id.items()}
         try:
             field_piece_pos = id_to_field_piece[opened_fieldpiece[i]]
+            print("?g?")
             (x,y) = field_piece_to_tile[field_piece_pos]
             # (x,y) = (x-1,y-1)
+            print("?k?")
             display_image(image= LOADED_FIELD_PIECE[opened_fieldpiece[i]-1],x= (int(x*450/24) +175),y= (int(y*450/24 )+75), width=int(450/6),height=int(450/6)   )
         except:
+            print("???")
             pass
 
         
@@ -329,20 +462,23 @@ def handle_text_input_events(events, text_input_box):
 try:
     while True:
         for event in pygame.event.get():
+            
             if event.type == pygame.QUIT:
                 pygame.quit()
                 shm.close()
                 shm.unlink()
                 exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                # print(len(opened_fieldpiece))
-                # print(field_piece_pos_to_id)
+                if open_button.is_clicked(event.pos):
+                    open_button.onclick()
+                elif rules_opened and close_button.is_clicked(event.pos):
+                    close_button.onclick()
+
                 if state == "not started" and start_button.is_clicked(event.pos):
                     start_button.onclick()
-                if state == 'character selection' or 'target selection':
+                if state == 'character selection' or state =='target selection':
                     event_x, event_y = pygame.mouse.get_pos()
                     if 175 <= event_x <= 625 and 75 <= event_y <= 525:
-                        print("front end state" +state)
                         try:
                             (x, y) = getTilePos(event_x, event_y)
                             fp = getFieldPieceFromTile(x, y)
@@ -356,22 +492,32 @@ try:
                                 # id_to_field_piece = {value: key for key, value in field_piece_pos_to_id.items()}
                                 if(fpId in opened_fieldpiece):
                                     send_to_cpp('move$'+last_used_color_name+"$"+str(tileId))
-                                
 
                         except:
                             send_to_cpp('open$'+last_used_color_name)
+                
+            if state == 'set_ip':
+                ip_input_box.handle_event(event)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if set_ip_button.is_clicked(event.pos):
+                        set_ip_button.onclick()
                             
 
         if state == 'not started':
+
             screen.blit(background_image, (0, 0))
             start_button.draw(screen)
+            open_button.draw(screen)
         if state == 'starting':
             screen.blit(background_image, (0, 0))
             state = 'character selection'
-            # print ("solution " +movement_ability[0]+movement_ability[1]+movement_ability[2]+movement_ability[3]+movement_ability[4]+movement_ability[5]+movement_ability[6])
-
             display_basic_game_UI()
             moved_character = True
+        if state == 'set_ip':
+            # ip_input_box.update()
+            ip_input_box.draw(screen)
+            set_ip_button.draw(screen)
+
         
         if moved_character:
             moved_character = False
@@ -382,7 +528,6 @@ try:
             pygame.draw.circle(screen, colors[3],draw_bottom_left= True,draw_bottom_right=True, draw_top_left= True, draw_top_right= True ,radius=int(450/72),center=((int((orange[0]+0.5)*450/24) +175), (int((orange[1]+0.5)*450/24) +75)) )
         if state == "target selection":
             for pos in target_pos:
-                # print(pos)
                 x,y = tile_value_to_pos(pos)
                 x,y = pos_value_to_pixel((x,y))
                 pygame.draw.rect(screen, last_used_color, pygame.Rect(x, y, int(450/24), int(450/24)))
@@ -408,6 +553,24 @@ try:
 
                     x,y = pos_value_to_pixel(field_piece_to_tile[new_fp])
                     pygame.draw.rect(screen, last_used_color, (x,y,450/6,450/6 ), 10)
+        
+        if rules_opened:
+            pygame.draw.rect(screen, GRAY, (50, 120, 800 - 100, 700 - 240))
+
+
+        # Render and display rules text
+            font = pygame.font.SysFont('Arial', 10)
+            lines = rules_text.splitlines()
+            max_lines = (600 - 240) // font.get_linesize()
+            visible_lines = lines[:max_lines]
+            for i, line in enumerate(visible_lines):
+                text_surface = font.render(line, True, BLACK)
+                screen.blit(text_surface, (70, 140 + i * font.get_linesize()))
+
+
+
+
+            close_button.draw(screen)
 
         pygame.display.flip()
         clock.tick(30)  # Limit to 30 frames per second

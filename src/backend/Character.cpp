@@ -74,6 +74,7 @@ void Character::openFieldPiece()
         // std::cout << direction;
         int x = this->tileOn->fieldPieceOn->x;
         int y = this->tileOn->fieldPieceOn->y;
+        std::cout<<"work";
         PreFieldPiece preFieldPiece = *(Field::getInstance()->allFieldPieces[Field::getInstance()->futureFieldPieces.front()]);
         if (direction == "up")
         {
@@ -100,7 +101,9 @@ void Character::openFieldPiece()
         }
         else if (direction == "left")
         {
+            std::cout<<"heyy";
             preFieldPiece.rotateLeft();
+            std::cout<<"reg";
 
             newFieldPiece = new FieldPiece(x - 1, y, Field::getInstance(), &preFieldPiece);
             Field::getInstance()->futureFieldPieces.pop();

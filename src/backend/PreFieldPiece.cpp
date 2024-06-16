@@ -34,10 +34,8 @@ void PreFieldPiece::rotateLeft()
         newTiles[i] = new int[size];
         for (int j = 0; j < size; j++)
         {
-            std::cout<<"hey"<< tiles[i][j];
             newTiles[i][j] = (tiles[j][size - 1 - i]);
             newTiles[i][j] = (value*16+1+i*4+j)*1000000 + (newTiles[i][j]%1000000);
-            std::cout<<"  hey"<< newTiles[i][j]<<"\n";
             Utils::rotateDirectionLeft(&newTiles[i][j]);
 
         }

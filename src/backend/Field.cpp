@@ -22,7 +22,7 @@ Field::Field()
     int size = 4;
     std::string filename = "../../DB/FieldPieces.txt";
 
-    for (int i = 1; i <= 2; i++)
+    for (int i = 1; i <= 4; i++)
     {
         int **allFieldPiecesMap = Utils::readDatabaseFromFile(filename, i);
         // std::cout << "\n hello"<< (*(*allFieldPieces));
