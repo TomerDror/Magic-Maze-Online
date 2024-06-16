@@ -26,13 +26,20 @@ PreFieldPiece::PreFieldPiece(int **tiles, int size)
 void PreFieldPiece::rotateLeft()
 {
     int **newTiles = new int *[size];
+
+    int value = std::max(tiles[0][0]/1000000/16,std::max(tiles[0][1]/1000000/16,std::max(tiles[0][2]/1000000/16,tiles[0][3]/1000000/16))) ;
+    std::cout<<value;
     for (int i = 0; i < size; i++)
     {
         newTiles[i] = new int[size];
         for (int j = 0; j < size; j++)
         {
+            std::cout<<"hey"<< tiles[i][j];
             newTiles[i][j] = (tiles[j][size - 1 - i]);
+            newTiles[i][j] = (value*16+1+i*4+j)*1000000 + (newTiles[i][j]%1000000);
+            std::cout<<"  hey"<< newTiles[i][j]<<"\n";
             Utils::rotateDirectionLeft(&newTiles[i][j]);
+
         }
     }
 

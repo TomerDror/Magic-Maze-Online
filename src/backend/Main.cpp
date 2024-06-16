@@ -2,15 +2,17 @@
 #include <WinSock2.h>
 #include <thread>
 #include <algorithm>
+#include <queue>
 #include "Character.h"
 #include "PreFieldPiece.h"
 #include "FieldPiece.h"
 #include "Player.h"
 #include "Tile.h"
-#include <iostream>
-#include <fstream>
 
-#include <queue>
+#include <windows.h>
+#include <iostream>
+#include <cstring>
+#include <chrono>
 
 bool stringToBool(const std::string &str);
 
@@ -22,19 +24,20 @@ MovementAbility *queueToMovementAbility(std::queue<std::string> *cmd, MovementAb
 void handleCmd(std::queue<std::string> *cmd);
 bool canOpenFieldPiece(Character *character);
 void openFieldPiece(Character *character);
-
+std::vector<std::string> cmds;
 const char *SERVER_IP = "127.0.0.1"; // Change this to the server's IP address
 const int SERVER_PORT = 27015;
-const int BUFFER_SIZE = 1024;
-Player firstPlayer(1, 1, 1, 1, 1, 1, 1);
+Player firstPlayer(0, 0, 0, 0, 0, 0, 0);
 bool started = false;
-bool printToText = false;
+bool printToText = true;
+const int SHM_SIZE = 514; // 2 buffers of 256 bytes each + 2 flags
+const int BUFFER_SIZE = 256;
+
 void HandleServerMessages(SOCKET serverSocket)
 {
     char buffer[BUFFER_SIZE];
     int bytesReceived;
 
-    // printPossibleMoves(firstPlayer.movementAbility);
     while (true)
     {
         bytesReceived = recv(serverSocket, buffer, BUFFER_SIZE, 0);
@@ -48,12 +51,40 @@ void HandleServerMessages(SOCKET serverSocket)
         std::cout << "Received from server: " << buffer << std::endl;
         std::queue<std::string> cmd = splitString(buffer);
         handleCmd(&cmd);
-        // printPossibleMoves(firstPlayer.movementAbility);
     }
+}
+
+HANDLE hMapFile;
+char *pBuf;
+
+void send_to_python(const std::string &message)
+{
+    if (message.length() > BUFFER_SIZE)
+    {
+        throw std::runtime_error("Message too long");
+    }
+    pBuf[1] = 1; // Indicate message is ready
+    std::memcpy(pBuf + 258, message.c_str(), message.length());
+    std::memset(pBuf + 258 + message.length(), 0, BUFFER_SIZE - message.length()); // Clear remaining bytes
+}
+
+std::string recv_from_python()
+{
+    if (pBuf[0] == 1)
+    {
+        std::string message(pBuf + 2, BUFFER_SIZE);
+        auto null_char = std::find(message.begin(), message.end(), '\0');
+        message.erase(null_char, message.end());
+        pBuf[0] = 0; // Clear the flag
+        return message;
+    }
+    return "";
 }
 
 void ClientMain()
 {
+
+    while (!connected)
     WSADATA wsaData;
     int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (result != 0)
@@ -87,63 +118,29 @@ void ClientMain()
     std::cout << "Connected to server.";
     std::thread serverThread(HandleServerMessages, clientSocket);
 
-    // // Start a thread to handle server messages
-    // if (exitCode == 0)
-    // {
-    //     std::cout << "Python script executed successfully." << std::endl;
-    // }
-    // else
-    // {
-    //     std::cerr << "Error: Python script execution failed." << std::endl;
-    //     return ; // Return a non-zero value to indicate failure
-    // }
     // Main loop to send commands to the server
     while (true)
     {
         std::string cmdStr;
-        std::string color;
-        // int number = 0;
 
-        // std::cout << "Enter a command: ";
-        // std::getline(std::cin, cmdStr);
         if (printToText)
         {
-            std::ifstream MyReadFile("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt");
-
-            if (MyReadFile.is_open())
-            {                                // Check if file is open
-                getline(MyReadFile, cmdStr); // Read a line from the file into cmdStr
-                if (cmdStr.empty())
-                {
-                    MyReadFile.close(); // Close the file
-                }
-                else
-                {
-
-                    // std::cout << cmdStr;
-                    MyReadFile.close(); // Close the file
-
-                    std::ofstream file("C://Users//tomer//Documents//school//cpProject//src//extras//toCpp.txt", std::ofstream::out | std::ofstream::trunc);
-
-                    if (printToText && file.is_open())
-                    {
-                        file.close();
-                        //     // std::cout << "File contents deleted successfully." << std::endl;
-                    }
-                    // else
-                    // {
-                    //     std::cerr << "Unable to open file!";
-                    //     return;
-                    // }
-                }
+            // std::cout<<" ";
+            if (!cmds.empty())
+            {
+                cmdStr = cmds.front();
+                cmds.pop_back();
+                // if(started){
+                //     std::cout<<"answer"
+                // }
+                // std::cout << "wed" << cmdStr << " " << started << "\n";
             }
         }
         else
         {
-            // std::cout << "Enter a command: ";
             std::getline(std::cin, cmdStr);
         }
-        // std::cout << cmdStr << " " ;
+
         std::replace(cmdStr.begin(), cmdStr.end(), ' ', '$');
         std::queue<std::string> cmd = splitString(cmdStr.c_str());
         bool sendToOthers = false;
@@ -152,7 +149,6 @@ void ClientMain()
             cmd.pop();
             if (cmd.front() == "green")
             {
-                // std::cout<<"greeeeen";
                 printPossibleMoves(Field::getInstance()->getGreenCharacter(), firstPlayer.movementAbility);
             }
             if (cmd.front() == "purple")
@@ -171,6 +167,8 @@ void ClientMain()
         else if (started && cmd.front() == "get")
         {
             cmd.pop();
+            std::cout << "how much " << cmd.front();
+
             if (std::stoi(cmd.front()) == Field::getInstance()->getGreenCharacter()->tileOn->tileType / 1000000)
             {
                 std::cout << "green character\n";
@@ -193,40 +191,22 @@ void ClientMain()
             }
             else
             {
-                std::cout << "no character on squere " << cmd.front();
-                printPossibleMoves(Field::getInstance()->getYellowCharacter(), firstPlayer.movementAbility);
+                std::cout << "no character on square " << cmd.front();
+                // printPossibleMoves(Field::getInstance()->getYellowCharacter(), firstPlayer.movementAbility);
             }
             std::cout << "\n";
         }
-
         else if (cmd.front() == "quit")
         {
             break;
         }
         else if (!started && cmd.front() == "start")
         {
-
-            // cmd.pop();
-            // std::vector<int> myLinkedList;
-
-            // if (!cmd.empty())
-            // {
-
-            //     for (int i = 0; i < stoi(cmd.front()); i++)
-            //     {
-            //         cmd.pop();
-            //         myLinkedList.push_back(std::stoi(cmd.front()));
-            //         // cmdStr.append("");
-            //     }
-            // }
-
-            // Field::getInstance().futureFieldPieces = Utils::createQueueFromVector(myLinkedList);
-            // started = true;
+            std::cout << "starting";
             sendToOthers = true;
         }
         else if (started && (cmd.front() == "move" || cmd.front() == "open"))
         {
-            // std::cout << "moving";
             cmdStr.append(movementAbilityToCmdStr(firstPlayer.movementAbility));
             sendToOthers = true;
         }
@@ -236,18 +216,94 @@ void ClientMain()
             std::cerr << "Error sending message to server: " << WSAGetLastError() << std::endl;
             break;
         }
-
-        // std::this_thread::sleep_for(std::chrono::milliseconds(2000)); // Sleep for 100 milliseconds
-        // Close the socket and join the server thread
     }
     closesocket(clientSocket);
     serverThread.join();
 
     WSACleanup();
 }
+void listen_for_python_messages()
+{
+    while (true)
+    {
+        std::string message = recv_from_python();
+        if (!message.empty())
+        {
+            std::cout << "Received from Python: " << message << std::endl;
+            cmds.push_back(message);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+}
+
+bool run_python_script(const char *script_name)
+{
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+
+    // Construct the command line to run the Python script
+    std::string command = "python ";
+    command += script_name;
+
+    // Start the Python script process
+    if (!CreateProcessA(NULL, const_cast<char *>(command.c_str()), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+    {
+        std::cerr << "CreateProcess failed (" << GetLastError() << ")." << std::endl;
+        return false;
+    }
+
+    // Close process and thread handles (Python script will continue to run independently)
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    return true;
+}
 
 int main()
 {
+    // std::string ip;
+
+    // std::cout << "Enter ip address of server: ";
+    // std::getline(std::cin, ip);
+
+    // std::cout << "You entered: " << ip << std::endl;
+    // SERVER_IP =ip.c_str();
+    while (!run_python_script("../../src/frontend/frontend.py"))
+    {
+        return 1;
+    }
+    // std::cout<<"a";
+    for (int attempts = 0; attempts < 10; ++attempts)
+    {
+        hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, "my_shared_memory");
+        if (hMapFile != NULL)
+        {
+            break;
+        }
+        std::cerr << "Could not open file mapping object (" << GetLastError() << "), retrying..." << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    if (hMapFile == NULL)
+    {
+        std::cerr << "Could not open file mapping object after several attempts." << std::endl;
+        return 1;
+    }
+
+    pBuf = (char *)MapViewOfFile(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, SHM_SIZE);
+    if (pBuf == NULL)
+    {
+        std::cerr << "Could not map view of file (" << GetLastError() << ")." << std::endl;
+        CloseHandle(hMapFile);
+        return 1;
+    }
+
+    std::thread listener_thread(listen_for_python_messages);
+    listener_thread.detach();
+
     std::thread clientThread(ClientMain);
     clientThread.join();
 
@@ -295,31 +351,37 @@ void printPossibleMoves(MovementAbility *movementAbility)
 void printPossibleMoves(Character *character, MovementAbility *movementAbility)
 {
     std::cout << "possible " << (character->name) << " tiles ";
+    std::string str;
     std::vector<Tile *> possibleTiles = character->getPlausibleTargetTiles(movementAbility);
-    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
-    if (printToText && outFile.is_open())
-        outFile << character->name << "$";
+    if (printToText)
+        // outFile << character->name << "$";
+        str = character->name;
+    str.append("$");
     // Check if the file opened successfully
 
     for (std::vector<Tile *>::size_type i = 0; i < possibleTiles.size(); ++i)
 
     {
 
-        if (printToText && outFile.is_open())
         {
             // Write data to the file
-            outFile << possibleTiles[i]->tileType / 1000000;
-            if (i != possibleTiles.size() - 1)
-            {
-                outFile << "$";
-            }
+            str.append(std::to_string(possibleTiles[i]->tileType / 1000000));
+
+            str.append("$");
         }
         // std::cout << possibleTiles[i]->tileType  << " ";
         std::cout << possibleTiles[i]->tileType / 1000000 << " ";
     }
-    if (printToText && outFile.is_open())
-        outFile.close();
-
+    if (canOpenFieldPiece(character))
+    {
+        str.append(Utils::getDirection(character->tileOn->tileType));
+    }
+    else
+    {
+        str.append("none");
+    }
+    send_to_python(str);
+    std::cout << "sent " << str;
     std::cout << "\n";
 }
 
@@ -328,7 +390,7 @@ void handleCmd(std::queue<std::string> *cmd)
 
     std::string color;
     int number = 0;
-    MovementAbility *movementAbility = new MovementAbility();
+    MovementAbility *movementAbility = firstPlayer.movementAbility;
     if (cmd->front() == "quit")
     {
         exit(0);
@@ -336,7 +398,9 @@ void handleCmd(std::queue<std::string> *cmd)
     // std::cout << "hey there " << cmd->front() << "\n";
     if (cmd->front() == "start")
     {
+
         cmd->pop();
+        firstPlayer.movementAbility = queueToMovementAbility(cmd, firstPlayer.movementAbility);
         std::vector<int> myLinkedList;
         //
         // std::cout<<"k";
@@ -352,7 +416,8 @@ void handleCmd(std::queue<std::string> *cmd)
         }
         // std::cout<<"k";
         Field::getInstance()->futureFieldPieces = Utils::createQueueFromVector(myLinkedList);
-
+        // send_to_python("start" +movementAbilityToCmdStr(firstPlayer.movementAbility));
+        send_to_python("start" + movementAbilityToCmdStr(firstPlayer.movementAbility));
         started = true;
     }
     if (started && cmd->front() == "open")
@@ -382,6 +447,10 @@ void handleCmd(std::queue<std::string> *cmd)
         {
             // std::cout << "able to open";
             openFieldPiece(character);
+            double fpInDir = Utils::getDirection(character->tileOn->tileType) == "up" ? (character->tileOn->tileAbove->tileType) : Utils::getDirection(character->tileOn->tileType) == "down" ? (character->tileOn->tileBellow->tileType)
+                                                                                                                               : Utils::getDirection(character->tileOn->tileType) == "left"   ? (character->tileOn->tileToLeft->tileType)
+                                                                                                                                                                                              : (character->tileOn->tileToRight->tileType - 1);
+            send_to_python("open$" + color + "$" + std::to_string((character->tileOn->tileType - 1) / 16 + 1) + "$" + Utils::getDirection(character->tileOn->tileType) + "$" + std::to_string(fpInDir));
         }
     }
     if (started && cmd->front() == "move")
@@ -407,9 +476,10 @@ void handleCmd(std::queue<std::string> *cmd)
                     didMove = true;
 
                     Field::getInstance()->getGreenCharacter()->move(possibleTiles[i], movementAbility);
-                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
-                    if (outFile.is_open())
-                        outFile << "move$" << color << "$" << number;
+                    // std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
+                    // if (outFile.is_open())
+                    // outFile << "move$" << color << "$" << number;
+                    send_to_python("move$" + color + "$" + std::to_string(number));
                 }
             }
         }
@@ -423,9 +493,7 @@ void handleCmd(std::queue<std::string> *cmd)
                     didMove = true;
 
                     Field::getInstance()->getPurpleCharacter()->move(possibleTiles[i], movementAbility);
-                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
-                    if (outFile.is_open())
-                        outFile << "move$" << color << "$" << number;
+                    send_to_python("move$" + color + "$" + std::to_string(number));
                 }
             }
         }
@@ -439,9 +507,7 @@ void handleCmd(std::queue<std::string> *cmd)
                     didMove = true;
 
                     Field::getInstance()->getOrangeCharacter()->move(possibleTiles[i], movementAbility);
-                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
-                    if (outFile.is_open())
-                        outFile << "move$" << color << "$" << number;
+                    send_to_python("move$" + color + "$" + std::to_string(number));
                 }
             }
         }
@@ -454,19 +520,16 @@ void handleCmd(std::queue<std::string> *cmd)
                 {
                     didMove = true;
 
-                    std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
-                    if (outFile.is_open())
-                        outFile << "move$" << color << "$" << number;
                     Field::getInstance()->getYellowCharacter()->move(possibleTiles[i], movementAbility);
+                    send_to_python("move$" + color + "$" + std::to_string(number));
                 }
             }
         }
 
         if (!didMove)
         {
-            std::ofstream outFile("C://Users//tomer//Documents//school//cpProject//src//extras//toPython.txt");
-            if (outFile.is_open())
-                outFile << "move$nowhere";
+
+            send_to_python("move$nowhere");
             std::cout << "moving nowhere";
         }
     }

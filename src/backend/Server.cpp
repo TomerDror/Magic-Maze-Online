@@ -12,6 +12,23 @@
     SOCKET serverSocket;
     bool gameStarted = false;
 
+
+
+std::string generatemovementAbility() {
+    std::string result;
+    srand(time(NULL)); // Seed the random number generator
+
+    for (int i = 0; i < 7; ++i) {
+        int randomNumber = 1;//rand() % 2; // Generate random number (0 or 1)
+        result += std::to_string(randomNumber); // Convert random number to string and append to result
+        if (i < 6) {
+            result += "$"; // Add "$" separator except for the last character
+        }
+    }
+
+    return result;
+}
+
     void BroadcastMessage(const char* message, int size) {
         for (SOCKET client : clients) {
             send(client, message, size, 0);
@@ -27,7 +44,7 @@
             if (bytesReceived == SOCKET_ERROR || bytesReceived == 0) {
                 std::cerr << "Error receiving from client. Closing connection." << std::endl;
                 closesocket(clientSocket);
-                return;
+                exit(0);
             }
 
             buffer[bytesReceived] = '\0';
@@ -36,7 +53,8 @@
             if (!gameStarted && strcmp(buffer, "start") == 0) {
                 std::cout << "Start command received. Broadcasting start to all clients." << std::endl;
                 gameStarted = true;
-                BroadcastMessage("start$2", strlen("start$2"));
+                std::string str = "start$"+ generatemovementAbility()+"$2";
+                BroadcastMessage(str.c_str(), str.length());
             } else if (gameStarted) {
                 // Broadcast received message to all clients
                 BroadcastMessage(buffer, bytesReceived);
@@ -106,3 +124,4 @@
         WSACleanup();
         return 0;
     }
+
