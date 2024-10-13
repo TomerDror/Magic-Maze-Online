@@ -13,13 +13,13 @@
     bool gameStarted = false;
 
 
+
 std::string generatemovementAbility() {
     std::string result;
     srand(time(NULL)); // Seed the random number generator
 
     for (int i = 0; i < 7; ++i) {
         int randomNumber = 1;//rand() % 2; // Generate random number (0 or 1)
-        int randomNumber =rand() % 2; // Generate random number (0 or 1)
         result += std::to_string(randomNumber); // Convert random number to string and append to result
         if (i < 6) {
             result += "$"; // Add "$" separator except for the last character
@@ -53,7 +53,7 @@ std::string generatemovementAbility() {
             if (!gameStarted && strcmp(buffer, "start") == 0) {
                 std::cout << "Start command received. Broadcasting start to all clients." << std::endl;
                 gameStarted = true;
-                std::string str = "start$"+ generatemovementAbility()+"$3$2$4";
+                std::string str = "start$"+ generatemovementAbility()+"$5$4$2$3";
                 BroadcastMessage(str.c_str(), str.length());
             } else if (gameStarted) {
                 // Broadcast received message to all clients
